@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-server-alpha"
+version = "0.2.0"
+description = "Autonomous Research Assistant powered by LangGraph and OpenAI with visible reasoning chains"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=0.9.0",
+    # FastAPI and related for future REST API endpoints
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    # Core models and validation
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    # SQLModel for future database persistence
+    "sqlmodel>=0.0.14",
+    "httpx>=0.26.0",
+    "pyyaml>=6.0",
+    # LangGraph and LangChain for workflow orchestration
+    "langgraph>=0.0.20",
+    "langchain>=0.1.0",
+    "langchain-core>=0.1.0",
+    "langchain-openai>=0.0.2",
+    # Typing extensions for Python 3.10 compatibility
+    "typing-extensions>=4.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+    "types-pyyaml>=6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
