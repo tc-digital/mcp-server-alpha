@@ -237,6 +237,8 @@ result = await weather_forecast_tool("39.7456,-97.0892", "hourly")
 
 **Send Email via Power Automate**: Already integrated with configurable webhook!
 
+See the [Power Automate Integration Guide](POWER_AUTOMATE_INTEGRATION.md) for detailed setup instructions.
+
 ```python
 # First, set the Power Automate webhook URL
 export POWER_AUTOMATE_WEBHOOK_URL='https://prod-xx.eastus.logic.azure.com:443/workflows/...'
@@ -255,26 +257,9 @@ result = await send_email_tool(
   "to_email": "recipient@example.com",
   "subject": "Meeting Summary"
 }
-
-# Input validation is performed automatically
-# - to_email: Must be valid email format
-# - subject: Required, max 500 characters
-# - body: Required, max 50,000 characters
 ```
 
-**Configuring Power Automate Webhook**:
-
-1. Create a Power Automate flow with an HTTP trigger
-2. Configure the flow to accept JSON with fields: `to_email`, `subject`, `body`
-3. Add an "Send an email" action in Power Automate
-4. Set the webhook URL as `POWER_AUTOMATE_WEBHOOK_URL` environment variable
-5. The tool will POST to this webhook when called from Claude Desktop
-
-**Security Notes**:
-- Never hardcode the webhook URL in code
-- Use environment variables for configuration
-- The webhook URL should be kept secret
-- Consider adding authentication in your Power Automate flow
+For complete setup instructions, troubleshooting, and advanced configuration, see [POWER_AUTOMATE_INTEGRATION.md](POWER_AUTOMATE_INTEGRATION.md).
 
 **Other integrations**:
 - Document analysis (PDF, Word, etc.)
