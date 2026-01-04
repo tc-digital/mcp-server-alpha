@@ -71,7 +71,7 @@ class EligibilityRule(BaseModel):
 
         if self.logic == "all":
             is_eligible = all(results)
-            for i, (qualifier, result) in enumerate(zip(self.qualifiers, results)):
+            for qualifier, result in zip(self.qualifiers, results):
                 if not result:
                     reasons.append(f"{qualifier.name}: {qualifier.description}")
         else:  # any

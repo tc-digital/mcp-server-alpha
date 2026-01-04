@@ -10,13 +10,17 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=0.9.0",
+    # FastAPI and related for future REST API endpoints
     "fastapi>=0.109.0",
     "uvicorn>=0.27.0",
+    # Core models and validation
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
+    # SQLModel for future database persistence
     "sqlmodel>=0.0.14",
     "httpx>=0.26.0",
     "pyyaml>=6.0",
+    # LangGraph and LangChain for workflow orchestration
     "langgraph>=0.0.20",
     "langchain>=0.1.0",
     "langchain-core>=0.1.0",

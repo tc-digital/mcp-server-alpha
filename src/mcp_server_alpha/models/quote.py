@@ -28,7 +28,9 @@ class Quote(BaseModel):
     effective_date: datetime = Field(..., description="Coverage effective date")
     expiration_date: datetime = Field(..., description="Quote expiration date")
     details: dict[str, str] = Field(default_factory=dict, description="Quote details")
-    created_at: datetime = Field(default_factory=datetime.now, description="Quote creation time")
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(), description="Quote creation time"
+    )
 
 
 class QuoteResponse(BaseModel):

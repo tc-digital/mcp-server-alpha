@@ -7,6 +7,9 @@ from typing import Any
 from ..models import Consumer, Product, Quote, QuoteRequest
 from .base import BaseProvider
 
+# Configuration constants
+DEPENDENT_COST_PER_PERSON = Decimal("50.00")
+
 
 class MockInsuranceProvider(BaseProvider):
     """Mock insurance provider implementation."""
@@ -40,7 +43,7 @@ class MockInsuranceProvider(BaseProvider):
 
         # Add dependent costs
         if quote_request.dependents > 0:
-            dependent_cost = Decimal(str(quote_request.dependents * 50))
+            dependent_cost = DEPENDENT_COST_PER_PERSON * quote_request.dependents
             monthly_premium += dependent_cost
 
         effective_date = quote_request.effective_date or datetime.now()

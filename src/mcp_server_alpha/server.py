@@ -22,6 +22,9 @@ from .tools import (
     search_products_tool,
 )
 
+# Configuration constants
+DEFAULT_DOB = "1980-01-01"
+
 
 class MCPServerAlpha:
     """Main MCP server class."""
@@ -236,12 +239,17 @@ class MCPServerAlpha:
         profile_data = consumer_data.get("profile", {})
         profile = ConsumerProfile(**profile_data)
 
-        # Parse date of birth
-        dob_str = consumer_data.get("date_of_birth", "1980-01-01")
-        if isinstance(dob_str, str):
-            dob = date.fromisoformat(dob_str)
-        else:
-            dob = dob_str
+        # Parse date of birth with error handling
+        dob_str = consumer_data.get("date_of_birth", DEFAULT_DOB)
+        try:
+            if isinstance(dob_str, str):
+                dob = date.fromisoformat(dob_str)
+            elif isinstance(dob_str, date):
+                dob = dob_str
+            else:
+                dob = date.fromisoformat(DEFAULT_DOB)
+        except (ValueError, AttributeError):
+            dob = date.fromisoformat(DEFAULT_DOB)
 
         return Consumer(
             id=consumer_data.get("id", str(uuid.uuid4())),

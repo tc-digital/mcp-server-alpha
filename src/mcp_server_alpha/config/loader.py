@@ -1,10 +1,13 @@
 """Configuration loader and product registry."""
 import json
+import logging
 from pathlib import Path
 
 import yaml
 
 from ..models import Product
+
+logger = logging.getLogger(__name__)
 
 
 class ProductRegistry:
@@ -105,18 +108,18 @@ class ConfigLoader:
                 product = ConfigLoader.load_from_file(file_path)
                 registry.register(product)
             except Exception as e:
-                print(f"Error loading product from {file_path}: {e}")
+                logger.error(f"Error loading product from {file_path}: {e}")
 
         for file_path in dir_path.glob("*.yaml"):
             try:
                 product = ConfigLoader.load_from_file(file_path)
                 registry.register(product)
             except Exception as e:
-                print(f"Error loading product from {file_path}: {e}")
+                logger.error(f"Error loading product from {file_path}: {e}")
 
         for file_path in dir_path.glob("*.yml"):
             try:
                 product = ConfigLoader.load_from_file(file_path)
                 registry.register(product)
             except Exception as e:
-                print(f"Error loading product from {file_path}: {e}")
+                logger.error(f"Error loading product from {file_path}: {e}")
