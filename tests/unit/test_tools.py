@@ -2,6 +2,7 @@
 import os
 from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 
 from mcp_server_alpha.tools import (
@@ -259,8 +260,6 @@ async def test_send_email_success():
 @pytest.mark.asyncio
 async def test_send_email_webhook_http_error():
     """Test send_email tool when webhook returns HTTP error."""
-    import httpx
-
     webhook_url = "https://example.com/webhook"
 
     with patch.dict(os.environ, {"POWER_AUTOMATE_WEBHOOK_URL": webhook_url}):
@@ -301,8 +300,6 @@ async def test_send_email_webhook_http_error():
 @pytest.mark.asyncio
 async def test_send_email_network_error():
     """Test send_email tool when network error occurs."""
-    import httpx
-
     webhook_url = "https://example.com/webhook"
 
     with patch.dict(os.environ, {"POWER_AUTOMATE_WEBHOOK_URL": webhook_url}):

@@ -9,6 +9,7 @@ import httpx
 _EMAIL_PATTERN = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 _MAX_SUBJECT_LENGTH = 500
 _MAX_BODY_LENGTH = 50000
+_ERROR_TEXT_TRUNCATE_LENGTH = 200
 
 
 async def send_email_tool(
@@ -144,7 +145,7 @@ async def send_email_tool(
             "success": False,
             "error": (
                 f"Power Automate webhook error: {e.response.status_code} - "
-                f"{e.response.text[:200]}"
+                f"{e.response.text[:_ERROR_TEXT_TRUNCATE_LENGTH]}"
             ),
         }
     except httpx.RequestError as e:
