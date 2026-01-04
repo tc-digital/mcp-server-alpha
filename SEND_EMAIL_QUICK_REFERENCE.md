@@ -23,6 +23,28 @@
 
 ### 2. Configure Environment Variable
 
+**Option A: In Claude Desktop config file**
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-alpha": {
+      "command": "python",
+      "args": ["-m", "mcp_server_alpha.server"],
+      "env": {
+        "POWER_AUTOMATE_WEBHOOK_URL": "https://prod-xx.eastus.logic.azure.com:443/workflows/..."
+      }
+    }
+  }
+}
+```
+
+**After editing, completely quit and restart Claude Desktop.**
+
+**Option B: System environment variable**
+
 ```bash
 export POWER_AUTOMATE_WEBHOOK_URL='https://prod-xx.eastus.logic.azure.com:443/workflows/...'
 ```
@@ -68,10 +90,12 @@ Subject: "Meeting Reminder"
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| "webhook URL not configured" | Missing env var | Set `POWER_AUTOMATE_WEBHOOK_URL` |
+| "webhook URL not configured" | Missing env var | Set `POWER_AUTOMATE_WEBHOOK_URL` and **restart Claude Desktop** |
 | "Invalid email format" | Bad email | Use valid email like `user@domain.com` |
 | "subject cannot be empty" | Empty subject | Provide non-empty subject |
 | "body cannot be empty" | Empty body | Provide non-empty body |
+
+**Troubleshooting**: For detailed diagnostic steps, see [TROUBLESHOOTING_CLAUDE_DESKTOP.md](TROUBLESHOOTING_CLAUDE_DESKTOP.md)
 
 ## Validation Rules
 

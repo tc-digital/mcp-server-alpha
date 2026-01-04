@@ -78,7 +78,9 @@ Or set permanently via System Environment Variables.
 
 #### In Claude Desktop Configuration
 
-Add to your Claude Desktop MCP configuration file (usually `~/Library/Application Support/Claude/config.json` on macOS):
+Add to your Claude Desktop MCP configuration file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -87,13 +89,16 @@ Add to your Claude Desktop MCP configuration file (usually `~/Library/Applicatio
       "command": "python",
       "args": ["-m", "mcp_server_alpha.server"],
       "env": {
-        "OPENAI_API_KEY": "your-openai-key",
         "POWER_AUTOMATE_WEBHOOK_URL": "https://prod-xx.eastus.logic.azure.com:443/workflows/..."
       }
     }
   }
 }
 ```
+
+**Important**: After editing the config file, **completely quit and restart Claude Desktop** (don't just close the window).
+
+**Troubleshooting**: If you get "webhook URL not configured" error, see [TROUBLESHOOTING_CLAUDE_DESKTOP.md](TROUBLESHOOTING_CLAUDE_DESKTOP.md) for detailed diagnostic steps.
 
 ### 3. Test the Integration
 

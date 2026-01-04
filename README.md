@@ -240,8 +240,9 @@ result = await weather_forecast_tool("39.7456,-97.0892", "hourly")
 See the [Power Automate Integration Guide](POWER_AUTOMATE_INTEGRATION.md) for detailed setup instructions.
 
 ```python
-# First, set the Power Automate webhook URL
-export POWER_AUTOMATE_WEBHOOK_URL='https://prod-xx.eastus.logic.azure.com:443/workflows/...'
+# Configure in Claude Desktop config or as system environment variable
+# Claude Desktop: ~/Library/Application Support/Claude/claude_desktop_config.json
+# Add to "env" section: "POWER_AUTOMATE_WEBHOOK_URL": "https://..."
 
 # Send email via the tool
 result = await send_email_tool(
@@ -258,6 +259,10 @@ result = await send_email_tool(
   "subject": "Meeting Summary"
 }
 ```
+
+**Important**: After configuring Claude Desktop, completely quit and restart the application.
+
+**Troubleshooting**: If you get configuration errors, see [TROUBLESHOOTING_CLAUDE_DESKTOP.md](TROUBLESHOOTING_CLAUDE_DESKTOP.md).
 
 For complete setup instructions, troubleshooting, and advanced configuration, see [POWER_AUTOMATE_INTEGRATION.md](POWER_AUTOMATE_INTEGRATION.md).
 
