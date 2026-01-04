@@ -40,7 +40,11 @@ async def weather_forecast_tool(
             points_url = f"https://api.weather.gov/points/{lat},{lon}"
             points_response = await client.get(
                 points_url,
-                headers={"User-Agent": "(MCP Weather Tool, contact@example.com)"},
+                headers={
+                    "User-Agent": (
+                        "(mcp-server-alpha, github.com/tc-digital/mcp-server-alpha)"
+                    )
+                },
             )
             points_response.raise_for_status()
             points_data = points_response.json()
@@ -61,7 +65,11 @@ async def weather_forecast_tool(
             # Get the forecast
             forecast_response = await client.get(
                 forecast_url,
-                headers={"User-Agent": "(MCP Weather Tool, contact@example.com)"},
+                headers={
+                    "User-Agent": (
+                        "(mcp-server-alpha, github.com/tc-digital/mcp-server-alpha)"
+                    )
+                },
             )
             forecast_response.raise_for_status()
             forecast_data = forecast_response.json()
