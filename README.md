@@ -23,6 +23,7 @@ src/mcp_server_alpha/
 ├── tools/           # MCP tool implementations (search, eligibility, quotes)
 ├── orchestration/   # Workflow engine for multi-step processes
 ├── adapters/        # Multi-channel adapters (chat, voice, SMS)
+├── agents/          # 🆕 LangGraph agents with LLM reasoning
 └── server.py        # Main MCP server implementation
 ```
 
@@ -66,6 +67,15 @@ State machine for managing multi-step processes:
 - Configurable branching logic
 - Error handling and rollback support
 
+#### 6. **🆕 LangGraph Agent Integration**
+Intelligent conversational agent powered by OpenAI (or AWS Bedrock):
+- Natural language understanding of insurance queries
+- Automatic tool orchestration based on conversation context
+- Context-aware responses across multiple turns
+- Support for gpt-4o, gpt-4o-mini, Claude (via Bedrock), and more
+
+See [Agent Documentation](src/mcp_server_alpha/agents/README.md) for details.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -96,6 +106,38 @@ python -m mcp_server_alpha.server
 # Or use as a module
 python src/mcp_server_alpha/server.py
 ```
+
+### 🤖 Using the LangGraph Agent (NEW!)
+
+The agent adds intelligent conversational capabilities using OpenAI or AWS Bedrock:
+
+```bash
+# Set your API key
+export OPENAI_API_KEY='sk-...'
+
+# Run the agent example
+python examples/agent_example.py
+```
+
+**What the agent does:**
+- Understands natural language queries about insurance
+- Automatically calls the right tools based on context
+- Maintains conversation state across multiple turns
+- Provides clear explanations in conversational language
+
+**Example conversation:**
+```
+User: "Hi! I'm looking for health insurance."
+Agent: Searches products and presents options...
+
+User: "I'm 38 and live in California. Am I eligible?"
+Agent: Checks eligibility and explains requirements...
+
+User: "How much would it cost for me and 2 dependents?"
+Agent: Generates quote with breakdown...
+```
+
+See the [Agent README](src/mcp_server_alpha/agents/README.md) for full documentation.
 
 ### Running Tests
 
