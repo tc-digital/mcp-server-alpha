@@ -1,4 +1,4 @@
-"""Agent module for LLM-powered conversational interactions."""
-from .insurance_agent import InsuranceAgent
+"""Research Assistant Agent module."""
+from .research_agent import ResearchAgent
 
-__all__ = ["InsuranceAgent"]
+__all__ = ["ResearchAgent"]

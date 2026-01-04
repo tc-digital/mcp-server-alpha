@@ -1,145 +1,223 @@
-# MCP Server Alpha
+# Research Assistant with LangGraph
 
-A production-ready Model Context Protocol (MCP) server for insurance products, built with modern Python frameworks for extensibility, maintainability, and rapid development.
+An intelligent, autonomous research assistant powered by LangGraph and OpenAI that demonstrates visible reasoning chains and multi-tool orchestration.
 
-## 🎯 Project Vision
+## 🎯 What It Does
 
-This MCP server enables seamless integration of insurance products and APIs through a flexible, config-driven architecture that:
-
-- **Allows product managers** to add/configure products, eligibility rules, and compliance workflows without code changes
-- **Abstracts provider APIs** (carriers, enrollment systems) for easy addition of new partners
-- **Supports multi-step enrollment flows** that vary by carrier or product
-- **Enables cross-sell/upsell logic** based on consumer profiles and product compatibility
-- **Works across channels** (chat, voice, SMS) using adapters that share business logic
-- **Facilitates rapid QA** of new product configurations before launch
+This research assistant can:
+- **🔍 Research any topic** using web search and information gathering
+- **🧮 Perform calculations** for mathematical and financial queries
+- **📊 Analyze data** to find patterns and insights
+- **📝 Summarize content** to extract key information
+- **💭 Show its reasoning** with visible thought chains
 
 ## 🏗️ Architecture
 
 ```
 src/mcp_server_alpha/
-├── models/          # Type-safe data models (Product, Consumer, Quote, etc.)
-├── providers/       # Provider abstraction layer for carrier APIs
-├── config/          # Config-driven product registry and loader
-├── tools/           # MCP tool implementations (search, eligibility, quotes)
-├── orchestration/   # Workflow engine for multi-step processes
-├── adapters/        # Multi-channel adapters (chat, voice, SMS)
-├── agents/          # 🆕 LangGraph agents with LLM reasoning
-└── server.py        # Main MCP server implementation
+├── models/          # Research models (Query, Result, ThoughtChain, etc.)
+├── tools/           # Research tools (search, calculator, analyzer, summarizer)
+├── agents/          # LangGraph agent with reasoning chains
+├── orchestration/   # Workflow engine for complex tasks
+├── adapters/        # Multi-channel adapters (chat, voice, API)
+└── server.py        # MCP server implementation
 ```
 
 ### Key Components
 
-#### 1. **Config-Driven Product System**
-Products are defined in JSON/YAML files with:
-- Eligibility rules and qualifiers
-- Compliance disclaimers
-- Multi-step enrollment flows
-- Cross-sell product mappings
-- Provider-specific metadata
+#### 1. **Research Agent** (`agents/research_agent.py`)
+- LangGraph-based autonomous agent
+- Uses OpenAI (gpt-4o-mini by default) for reasoning
+- Visible thought process and reasoning chains
+- Tool orchestration based on research needs
 
-#### 2. **Provider Abstraction Layer**
-Clean interface for integrating carrier APIs:
-```python
-class BaseProvider(ABC):
-    async def check_eligibility(...)
-    async def get_quote(...)
-    async def initiate_enrollment(...)
-    async def get_enrollment_status(...)
-```
+#### 2. **Research Tools** (`tools/`)
+- **Web Search**: Find information on any topic (mock, ready for real API)
+- **Calculator**: Perform mathematical calculations
+- **Data Analyzer**: Statistical analysis and pattern finding
+- **Summarizer**: Extract key information from text
 
-#### 3. **MCP Tools**
-Five core tools exposed via MCP:
-- `search_products` - Find products by category/provider
-- `check_eligibility` - Verify consumer eligibility
-- `generate_quote` - Get pricing quotes
-- `get_cross_sell_products` - Recommend compatible products
-- `initiate_enrollment` - Start enrollment process
+#### 3. **Reasoning Chain** (`models/reasoning.py`)
+- Tracks agent's thought process
+- Shows observations, analysis, synthesis, and conclusions
+- Helps understand how the agent reaches answers
 
-#### 4. **Multi-Channel Adapters**
-Format responses for different channels without duplicating logic:
-- Chat adapter (formatted markdown)
-- Voice adapter (coming soon)
-- SMS adapter (coming soon)
-
-#### 5. **Workflow Orchestration**
-State machine for managing multi-step processes:
-- Eligibility → Quote → Cross-sell → Enrollment
-- Configurable branching logic
-- Error handling and rollback support
-
-#### 6. **🆕 LangGraph Agent Integration**
-Intelligent conversational agent powered by OpenAI (or AWS Bedrock):
-- Natural language understanding of insurance queries
-- Automatic tool orchestration based on conversation context
-- Context-aware responses across multiple turns
-- Support for gpt-4o, gpt-4o-mini, Claude (via Bedrock), and more
-
-See [Agent Documentation](src/mcp_server_alpha/agents/README.md) for details.
+#### 4. **Config-Driven System**
+- Easy to add new tools and integrations
+- No code changes needed for new capabilities
+- Pluggable architecture
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.10+
-- pip or uv
+- OpenAI API key
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone and install
 git clone https://github.com/tc-digital/mcp-server-alpha.git
 cd mcp-server-alpha
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -e ".[dev]"
 ```
 
-### Running the Server
+### Running the Research Assistant
 
 ```bash
-# Run the MCP server
-python -m mcp_server_alpha.server
-
-# Or use as a module
-python src/mcp_server_alpha/server.py
-```
-
-### 🤖 Using the LangGraph Agent (NEW!)
-
-The agent adds intelligent conversational capabilities using OpenAI or AWS Bedrock:
-
-```bash
-# Set your API key
+# Set your OpenAI API key
 export OPENAI_API_KEY='sk-...'
 
-# Run the agent example
-python examples/agent_example.py
+# Run the example
+python examples/research_example.py
 ```
 
-**What the agent does:**
-- Understands natural language queries about insurance
-- Automatically calls the right tools based on context
-- Maintains conversation state across multiple turns
-- Provides clear explanations in conversational language
+### Example Research Queries
 
-**Example conversation:**
+The assistant can handle various types of research:
+
+```python
+# Factual research
+"What are the key differences between machine learning and deep learning?"
+
+# Calculations
+"Calculate compound interest on $10,000 at 5% for 3 years"
+
+# Data analysis
+"Analyze this dataset: [10, 15, 20, 25, 30] and show statistics"
+
+# Multi-step research
+"Research renewable energy trends and calculate the growth rate"
 ```
-User: "Hi! I'm looking for health insurance."
-Agent: Searches products and presents options...
 
-User: "I'm 38 and live in California. Am I eligible?"
-Agent: Checks eligibility and explains requirements...
+## 💡 Usage
 
-User: "How much would it cost for me and 2 dependents?"
-Agent: Generates quote with breakdown...
+### Basic Research
+
+```python
+from mcp_server_alpha.agents import ResearchAgent
+
+# Initialize agent
+agent = ResearchAgent()
+
+# Research a topic
+result = await agent.research("What is quantum computing?")
+
+print(result["response"])  # Agent's answer
+print(result["reasoning_chain"])  # Thought process
 ```
 
-See the [Agent README](src/mcp_server_alpha/agents/README.md) for full documentation.
+### With Reasoning Visibility
 
-### Running Tests
+```python
+# The agent shows its reasoning
+result = await agent.research("Compare Python and JavaScript")
+
+# See how it thinks
+for step in result["reasoning_chain"]:
+    print(step)
+# Output:
+# 💭 I need to search for information about Python...
+# 🔧 Using web_search tool: {'query': 'Python programming language'}
+# 💭 Based on these sources, I can conclude...
+```
+
+### Interactive Mode
+
+```python
+# Maintains context across questions
+state = None
+
+questions = [
+    "What is machine learning?",
+    "What are the main types?",  # Remembers context
+    "Which one should I learn first?"  # Continues conversation
+]
+
+for question in questions:
+    result = await agent.research(question, state)
+    state = result["state"]  # Preserve context
+    print(result["response"])
+```
+
+## 🔧 Extending the Assistant
+
+### Adding a New Tool
+
+1. Create tool in `src/mcp_server_alpha/tools/`:
+
+```python
+# my_new_tool.py
+async def my_tool(param: str) -> dict:
+    """Tool description."""
+    # Implementation
+    return {"result": "..."}
+```
+
+2. Add to agent tools in `agents/tools.py`:
+
+```python
+@tool
+async def my_tool_wrapper(param: str) -> str:
+    """Tool for LangChain."""
+    result = await my_tool(param)
+    return result["result"]
+```
+
+3. Agent automatically uses it when relevant!
+
+### Integrating Real APIs
+
+The tools are designed to be easily upgraded:
+
+**Web Search**: Replace mock with Google Custom Search, Bing, or DuckDuckGo API
+
+```python
+# tools/search.py
+import requests
+
+async def web_search_tool(query: str, max_results: int = 5):
+    # Replace mock with real API
+    response = requests.get(
+        "https://api.search.com/search",
+        params={"q": query, "limit": max_results}
+    )
+    return response.json()["results"]
+```
+
+**Other integrations**:
+- Document analysis (PDF, Word, etc.)
+- Database queries
+- Code execution (sandboxed)
+- Image analysis
+- Chart generation
+- And more...
+
+## 🎮 Example Output
+
+```
+📋 Research Query 1:
+   What are the key differences between machine learning and deep learning?
+----------------------------------------------------------------------
+
+🤖 Agent Response:
+   Machine learning is a broader field that includes various algorithms
+   for learning from data, while deep learning is a subset that uses
+   neural networks with multiple layers...
+
+💭 Reasoning Chain:
+   🔧 Using web_search tool: {'query': 'machine learning vs deep learning'}
+   💭 Let me analyze these search results to identify key differences...
+   💭 Based on these sources, I can conclude that the main differences are...
+```
+
+## 🧪 Testing
 
 ```bash
 # Run all tests
@@ -148,250 +226,72 @@ pytest
 # Run with coverage
 pytest --cov=mcp_server_alpha --cov-report=html
 
-# Run specific test suite
-pytest tests/unit/
-pytest tests/integration/
+# Run specific tests
+pytest tests/unit/test_agent.py
 ```
 
-### Linting and Type Checking
+## 🛠️ Tech Stack
 
-```bash
-# Run ruff linter
-ruff check src/
+- **LangGraph**: Workflow orchestration and agent framework
+- **LangChain**: Tool integration and LLM interfaces
+- **OpenAI**: GPT-4o-mini for reasoning (or any OpenAI model)
+- **Pydantic**: Type-safe models and validation
+- **Python 3.10+**: Modern async/await patterns
 
-# Run type checker
-mypy src/
-```
-
-## 📝 Usage Examples
-
-### Defining a Product
-
-Create a JSON file in `examples/products/`:
-
-```json
-{
-  "id": "health-premium-001",
-  "name": "Premium Health Plan",
-  "category": "health",
-  "provider_id": "carrier_abc",
-  "description": "Comprehensive health coverage",
-  "eligibility_rules": [
-    {
-      "name": "age_requirement",
-      "description": "Age 18-64",
-      "qualifiers": [
-        {
-          "name": "min_age",
-          "description": "At least 18",
-          "field": "age",
-          "operator": "gte",
-          "value": 18
-        }
-      ],
-      "logic": "all"
-    }
-  ],
-  "disclaimers": [
-    {
-      "type": "compliance",
-      "title": "Coverage Notice",
-      "content": "Coverage subject to state regulations...",
-      "required_acknowledgment": true,
-      "display_order": 1
-    }
-  ],
-  "enrollment_flow": [
-    {
-      "step_id": "personal_info",
-      "name": "Personal Information",
-      "description": "Basic demographic info",
-      "required_fields": ["first_name", "last_name", "email"],
-      "next_step": "payment_info"
-    },
-    {
-      "step_id": "payment_info",
-      "name": "Payment",
-      "description": "Payment details",
-      "required_fields": ["payment_method"],
-      "next_step": null
-    }
-  ],
-  "cross_sell_products": ["dental-001", "vision-001"],
-  "active": true
-}
-```
-
-### Adding a New Provider
-
-Implement the `BaseProvider` interface:
-
-```python
-from mcp_server_alpha.providers import BaseProvider
-
-class MyCarrierProvider(BaseProvider):
-    async def check_eligibility(self, product, consumer):
-        # Call carrier API
-        response = await self.api_client.check_eligibility(...)
-        return response.eligible, response.reasons
-    
-    async def get_quote(self, quote_request, consumer):
-        # Generate quote via carrier API
-        ...
-```
-
-Register the provider:
-
-```python
-provider = MyCarrierProvider("my_carrier", config={
-    "api_key": "...",
-    "endpoint": "https://api.carrier.com"
-})
-provider_registry.register(provider)
-```
-
-### Using MCP Tools
-
-The server exposes tools through the MCP protocol:
-
-```python
-# Search for health insurance products
-result = await call_tool("search_products", {
-    "category": "health",
-    "active_only": True
-})
-
-# Check eligibility
-result = await call_tool("check_eligibility", {
-    "product_id": "health-001",
-    "consumer_data": {
-        "profile": {"age": 35, "state": "CA", ...}
-    }
-})
-
-# Generate quote
-result = await call_tool("generate_quote", {
-    "product_id": "health-001",
-    "consumer_data": {...},
-    "coverage_amount": 50000,
-    "dependents": 2
-})
-```
-
-## 🧪 Testing
-
-The project includes comprehensive test coverage:
-
-### Unit Tests
-- `tests/unit/test_models.py` - Product models, eligibility rules, qualifiers
-- `tests/unit/test_providers.py` - Provider implementations
-- `tests/unit/test_config.py` - Configuration loading and registry
-
-### Integration Tests
-- `tests/integration/test_workflows.py` - End-to-end workflows
-
-### Example Test
-
-```python
-@pytest.mark.asyncio
-async def test_eligibility_check():
-    consumer = Consumer(
-        id="test-001",
-        profile=ConsumerProfile(age=30, state="CA", ...)
-    )
-    
-    result = await check_eligibility_tool(
-        product_registry,
-        provider_registry,
-        "health-001",
-        consumer
-    )
-    
-    assert result["eligible"] is True
-```
-
-## 🔧 Configuration
-
-### Product Configuration
-Products are loaded from `examples/products/*.json` on server startup. No code changes needed to add products.
-
-### Provider Configuration
-Providers can be configured with:
-- API credentials
-- Endpoint URLs
-- Timeout settings
-- Retry policies
+## 🔐 Configuration
 
 ### Environment Variables
-```bash
-# Optional: Set config directory
-export PRODUCT_CONFIG_DIR=/path/to/products
 
-# Optional: Set log level
-export LOG_LEVEL=DEBUG
+- `OPENAI_API_KEY`: Your OpenAI API key (required)
+
+### Agent Parameters
+
+```python
+ResearchAgent(
+    model="gpt-4o-mini",  # or "gpt-4o", "gpt-4-turbo"
+    temperature=0.7,      # 0.0-1.0, higher = more creative
+    api_key="sk-..."      # or use env var
+)
 ```
 
-## 📚 Tech Stack
+## 🌟 Features
 
-- **MCP SDK** - Model Context Protocol implementation
-- **Pydantic** - Type-safe data validation
-- **FastAPI** - API framework (for future REST endpoints)
-- **SQLModel** - Database models (for future persistence)
-- **LangGraph** - Workflow orchestration
-- **pytest** - Testing framework
-- **ruff** - Fast Python linter
-- **mypy** - Static type checking
+### Current
+- ✅ Autonomous research with reasoning chains
+- ✅ Multi-tool orchestration
+- ✅ Context-aware conversations
+- ✅ Visible thought process
+- ✅ Extensible tool system
+- ✅ OpenAI integration
 
-## 🛣️ Roadmap
-
-- [x] Core MCP server implementation
-- [x] Config-driven product system
-- [x] Provider abstraction layer
-- [x] Mock provider for testing
-- [x] MCP tools (search, eligibility, quote, cross-sell)
-- [x] Multi-channel adapters (chat)
-- [x] Workflow orchestration
-- [x] Comprehensive tests
-- [ ] Database persistence layer
-- [ ] Real carrier API integrations
-- [ ] Voice adapter
-- [ ] SMS adapter
-- [ ] Admin UI for product configuration
-- [ ] Analytics and reporting
-- [ ] Advanced workflow branching
-- [ ] A/B testing framework
+### Coming Soon
+- 🔄 Real web search integration (Google, Bing)
+- 📄 Document analysis (PDF, Word, markdown)
+- 💾 Memory/RAG for long-term knowledge
+- 🎨 Visualization generation
+- 🔗 More integrations (GitHub, databases, etc.)
+- 🌐 Web UI for interactive research
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`pytest`)
-5. Run linting (`ruff check src/`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+2. Create a feature branch
+3. Add your tool or enhancement
+4. Write tests
+5. Submit a pull request
 
 ## 📄 License
 
-This project is proprietary software owned by TC Digital.
+Proprietary - TC Digital
 
-## 💡 Design Principles
+## 💬 Support
 
-1. **Separation of Concerns** - Business logic, provider logic, and presentation are cleanly separated
-2. **Config Over Code** - Products and rules defined in config files, not hardcoded
-3. **Type Safety** - Pydantic models ensure data integrity throughout
-4. **Testability** - Every component has clear interfaces and comprehensive tests
-5. **Extensibility** - New providers, products, and channels added without core changes
-6. **Production Ready** - Error handling, logging, validation from day one
-
-## 📞 Support
-
-For questions or issues:
-- Open an issue on GitHub
-- Contact the development team
-- Check the documentation in `/docs` (coming soon)
+- Open an issue for bugs or questions
+- Check examples/ directory for more usage patterns
+- See docs/ for detailed documentation
 
 ---
 
-Built with ❤️ by TC Digital
+**Built with ❤️ using LangGraph and OpenAI**
+
+*From insurance MCP server to autonomous research assistant - showcasing the power of modular, agentic architecture!*

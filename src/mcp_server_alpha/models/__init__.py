@@ -1,25 +1,14 @@
-"""Core models for the MCP server."""
-from .consumer import Consumer, ConsumerProfile
-from .product import (
-    Disclaimer,
-    EligibilityRule,
-    EnrollmentFlow,
-    Product,
-    ProductCategory,
-    Qualifier,
-)
-from .quote import Quote, QuoteRequest, QuoteResponse
+"""Core models for the Research Assistant."""
+from .reasoning import ReasoningStep, ReasoningType, ThoughtChain
+from .research import ResearchQuery, ResearchQueryType, ResearchResult, ResearchTask, Source
 
 __all__ = [
-    "Disclaimer",
-    "EligibilityRule",
-    "EnrollmentFlow",
-    "Product",
-    "ProductCategory",
-    "Qualifier",
-    "Consumer",
-    "ConsumerProfile",
-    "Quote",
-    "QuoteRequest",
-    "QuoteResponse",
+    "ResearchQuery",
+    "ResearchQueryType",
+    "ResearchResult",
+    "ResearchTask",
+    "Source",
+    "ReasoningStep",
+    "ReasoningType",
+    "ThoughtChain",
 ]

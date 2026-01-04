@@ -1,13 +1,12 @@
-"""MCP tools for the server."""
-from .eligibility import check_eligibility_tool
-from .enrollment import initiate_enrollment_tool
-from .products import get_cross_sell_products_tool, search_products_tool
-from .quotes import generate_quote_tool
+"""Research tools for the assistant."""
+from .analyzer import analyze_data_tool
+from .calculator import calculate_tool
+from .search import web_search_tool
+from .summarizer import summarize_tool
 
 __all__ = [
-    "check_eligibility_tool",
-    "initiate_enrollment_tool",
-    "get_cross_sell_products_tool",
-    "search_products_tool",
-    "generate_quote_tool",
+    "web_search_tool",
+    "summarize_tool",
+    "calculate_tool",
+    "analyze_data_tool",
 ]

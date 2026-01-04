@@ -1,226 +1,109 @@
 """Tool wrappers for LangChain agent integration."""
-from decimal import Decimal
+from typing import Any
 
 from langchain_core.tools import tool
 
-from ..config import ProductRegistry
-from ..models import Consumer, QuoteRequest
-from ..providers import ProviderRegistry
-from ..tools import (
-    check_eligibility_tool as _check_eligibility,
-)
-from ..tools import (
-    generate_quote_tool as _generate_quote,
-)
-from ..tools import (
-    get_cross_sell_products_tool as _get_cross_sell,
-)
-from ..tools import (
-    search_products_tool as _search_products,
-)
+from ..tools import analyze_data_tool, calculate_tool, summarize_tool, web_search_tool
 
 
-class AgentTools:
+class ResearchTools:
     """
-    Wrapper for MCP tools to make them compatible with LangChain agents.
-
-    This class converts our async MCP tools into LangChain tool format.
+    Wrapper for research tools to make them compatible with LangChain agents.
     """
 
-    def __init__(
-        self, product_registry: ProductRegistry, provider_registry: ProviderRegistry
-    ):
-        """Initialize with registries."""
-        self.product_registry = product_registry
-        self.provider_registry = provider_registry
+    def __init__(self):
+        """Initialize research tools."""
+        pass
 
     def get_tools(self) -> list:
         """Get list of LangChain-compatible tools."""
 
         @tool
-        async def search_products(
-            category: str | None = None, provider_id: str | None = None
-        ) -> str:
+        async def web_search(query: str, max_results: int = 5) -> str:
             """
-            Search for insurance products by category and provider.
+            Search the web for information on a topic.
 
             Args:
-                category: Product category (health, dental, vision, life,
-                    disability, medicare, ancillary)
-                provider_id: Provider/carrier identifier
+                query: What to search for
+                max_results: Maximum number of results (default: 5)
 
             Returns:
-                Formatted list of matching products
+                Formatted search results with sources
             """
-            results = await _search_products(
-                self.product_registry,
-                category=category,
-                provider_id=provider_id,
-                active_only=True,
-            )
+            results = await web_search_tool(query, max_results)
 
             if not results:
-                return "No products found matching criteria."
+                return "No search results found."
 
-            output = "Found products:\n"
-            for p in results:
-                output += f"\n• {p['name']} ({p['category']})"
-                output += f"\n  ID: {p['id']}"
-                output += f"\n  Provider: {p['provider_id']}"
-                output += f"\n  Description: {p['description']}\n"
+            output = f"Search results for '{query}':\n\n"
+            for i, result in enumerate(results, 1):
+                output += f"{i}. **{result['title']}**\n"
+                output += f"   {result['snippet']}\n"
+                output += f"   URL: {result['url']}\n"
+                output += f"   Reliability: {result['reliability_score']:.1%}\n\n"
 
             return output
 
         @tool
-        async def check_eligibility(
-            product_id: str, age: int, state: str, zip_code: str
-        ) -> str:
+        async def summarize_text(text: str, max_length: int = 200) -> str:
             """
-            Check if a consumer is eligible for a specific insurance product.
+            Summarize a piece of text.
 
             Args:
-                product_id: Product identifier
-                age: Consumer age
-                state: State of residence (e.g., 'CA', 'NY')
-                zip_code: ZIP code
+                text: Text to summarize
+                max_length: Maximum length of summary (default: 200 chars)
 
             Returns:
-                Eligibility result with explanation
+                Summarized text with metadata
             """
-            # Create consumer from parameters
-            from datetime import date, datetime
-            from uuid import uuid4
+            result = await summarize_tool(text, max_length)
 
-            from ..models import ConsumerProfile
+            output = f"Summary: {result['summary']}\n\n"
+            output += f"Original length: {result['original_length']} chars\n"
+            output += f"Summary length: {result['summary_length']} chars\n"
+            output += f"Compression: {result['compression_ratio']:.1%}"
 
-            birth_year = datetime.now().year - age
-
-            consumer = Consumer(
-                id=str(uuid4()),
-                first_name="User",
-                last_name="",
-                email="user@example.com",
-                date_of_birth=date(birth_year, 1, 1),
-                profile=ConsumerProfile(
-                    age=age, state=state, zip_code=zip_code
-                ),
-            )
-
-            result = await _check_eligibility(
-                self.product_registry,
-                self.provider_registry,
-                product_id,
-                consumer,
-            )
-
-            if result["eligible"]:
-                output = "✓ Eligible for this product!\n"
-                output += f"Reasons: {', '.join(result['reasons'])}\n"
-
-                if result.get("disclaimers"):
-                    disclaimers_count = len(result['disclaimers'])
-                    output += f"\nImportant notices: {disclaimers_count} disclaimer(s) apply"
-
-                return output
-            else:
-                output = "✗ Not eligible for this product.\n"
-                output += f"Reasons: {', '.join(result['reasons'])}"
-                return output
+            return output
 
         @tool
-        async def generate_quote(
-            product_id: str,
-            age: int,
-            state: str,
-            zip_code: str,
-            coverage_amount: int = 50000,
-            dependents: int = 0,
-        ) -> str:
+        async def calculate(expression: str) -> str:
             """
-            Generate a price quote for an insurance product.
+            Perform mathematical calculations.
 
             Args:
-                product_id: Product identifier
-                age: Consumer age
-                state: State of residence
-                zip_code: ZIP code
-                coverage_amount: Desired coverage amount in dollars
-                dependents: Number of dependents to cover
+                expression: Mathematical expression to evaluate (e.g., "2 + 2", "sqrt(16)")
 
             Returns:
-                Quote details with pricing
+                Calculation result
             """
-            # Create consumer
-            from datetime import date, datetime
-            from uuid import uuid4
-
-            from ..models import ConsumerProfile
-
-            birth_year = datetime.now().year - age
-
-            consumer = Consumer(
-                id=str(uuid4()),
-                first_name="User",
-                last_name="",
-                email="user@example.com",
-                date_of_birth=date(birth_year, 1, 1),
-                profile=ConsumerProfile(
-                    age=age, state=state, zip_code=zip_code
-                ),
-            )
-
-            quote_request = QuoteRequest(
-                product_id=product_id,
-                consumer_id=consumer.id,
-                coverage_amount=Decimal(str(coverage_amount)),
-                dependents=dependents,
-            )
-
-            result = await _generate_quote(
-                self.product_registry,
-                self.provider_registry,
-                quote_request,
-                consumer,
-            )
+            result = await calculate_tool(expression)
 
             if result["success"]:
-                q = result["quote"]
-                output = "Quote Generated:\n"
-                output += f"• Monthly Premium: ${q['monthly_premium']}\n"
-                output += f"• Coverage Amount: ${q['coverage_amount']}\n"
-                output += f"• Deductible: ${q['deductible']}\n"
-                output += f"• Quote ID: {q['quote_id']}\n"
-                return output
+                return f"Result: {result['result']}"
             else:
-                return f"Failed to generate quote: {result.get('error')}"
+                return f"Error: {result['error']}"
 
         @tool
-        async def get_cross_sell_products(product_id: str) -> str:
+        async def analyze_data(data: list[Any], analysis_type: str = "statistical") -> str:
             """
-            Get cross-sell product recommendations for a given product.
+            Analyze data and provide insights.
 
             Args:
-                product_id: Current product identifier
+                data: List of data to analyze (numbers, strings, etc.)
+                analysis_type: Type of analysis (statistical, trend, pattern)
 
             Returns:
-                List of recommended related products
+                Analysis results and insights
             """
-            results = await _get_cross_sell(self.product_registry, product_id)
+            result = await analyze_data_tool(data, analysis_type)
 
-            if not results:
-                return "No cross-sell recommendations available."
+            if "error" in result:
+                return f"Error: {result['error']}"
 
-            output = "Recommended products:\n"
-            for p in results:
-                output += f"\n• {p['name']} ({p['category']})"
-                output += f"\n  ID: {p['id']}"
-                output += f"\n  {p['description']}\n"
+            output = f"Analysis ({analysis_type}):\n\n"
+            for insight in result["insights"]:
+                output += f"• {insight}\n"
 
             return output
 
-        return [
-            search_products,
-            check_eligibility,
-            generate_quote,
-            get_cross_sell_products,
-        ]
+        return [web_search, summarize_text, calculate, analyze_data]
