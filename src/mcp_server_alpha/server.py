@@ -12,6 +12,7 @@ from .tools.analyzer import analyze_data_tool
 from .tools.calculator import calculate_tool
 from .tools.search import web_search_tool
 from .tools.summarizer import summarize_tool
+from .tools.weather import weather_forecast_tool
 
 sys.stderr.write("=== ALL IMPORTS SUCCESSFUL ===\n")
 sys.stderr.flush()
@@ -60,7 +61,10 @@ class MCPServerAlpha:
                         "properties": {
                             "expression": {
                                 "type": "string",
-                                "description": "Mathematical expression to evaluate (e.g., '2 + 2', '10 * 5', 'sqrt(16)')",
+                                "description": (
+                                    "Mathematical expression to evaluate "
+                                    "(e.g., '2 + 2', '10 * 5', 'sqrt(16)')"
+                                ),
                             }
                         },
                         "required": ["expression"],
@@ -106,6 +110,35 @@ class MCPServerAlpha:
                         "required": ["text"],
                     },
                 ),
+                Tool(
+                    name="weather_forecast",
+                    description=(
+                        "Get weather forecast for a location using weather.gov API. "
+                        "Supports US locations only."
+                    ),
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": (
+                                    "Location as 5-digit US zip code (e.g., '10001') or "
+                                    "latitude,longitude (e.g., '39.7456,-97.0892')"
+                                ),
+                            },
+                            "forecast_type": {
+                                "type": "string",
+                                "enum": ["forecast", "hourly"],
+                                "description": (
+                                    "Type of forecast: 'forecast' for 12-hour periods "
+                                    "(default), 'hourly' for hourly forecast"
+                                ),
+                                "default": "forecast",
+                            },
+                        },
+                        "required": ["location"],
+                    },
+                ),
             ]
 
         @self.server.call_tool()
@@ -143,9 +176,21 @@ class MCPServerAlpha:
                     return [
                         TextContent(
                             type="text",
-                            text=f"Summary: {result['summary']}\n\nOriginal length: {result['original_length']} chars\nSummary length: {result['summary_length']} chars\nCompression ratio: {result['compression_ratio']:.2%}",
+                            text=(
+                                f"Summary: {result['summary']}\n\n"
+                                f"Original length: {result['original_length']} chars\n"
+                                f"Summary length: {result['summary_length']} chars\n"
+                                f"Compression ratio: {result['compression_ratio']:.2%}"
+                            ),
                         )
                     ]
+
+                elif name == "weather_forecast":
+                    result = await weather_forecast_tool(
+                        location=arguments["location"],
+                        forecast_type=arguments.get("forecast_type", "forecast"),
+                    )
+                    return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
                 else:
                     return [TextContent(type="text", text=f"Unknown tool: {name}")]
@@ -164,12 +209,12 @@ def main() -> None:
     """Entry point for the MCP server."""
     sys.stderr.write("=== MAIN FUNCTION CALLED ===\n")
     sys.stderr.flush()
-    
+
     try:
         server = MCPServerAlpha()
         sys.stderr.write("=== SERVER INSTANCE CREATED ===\n")
         sys.stderr.flush()
-        
+
         asyncio.run(server.run())
         sys.stderr.write("=== SERVER RUN COMPLETED ===\n")
         sys.stderr.flush()
