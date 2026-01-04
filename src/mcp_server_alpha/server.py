@@ -1,6 +1,7 @@
 """Main MCP server implementation for Research Assistant."""
 import asyncio
 import json
+import sys
 from typing import Any
 
 from mcp.server import Server
@@ -12,6 +13,8 @@ from .tools.calculator import calculate_tool
 from .tools.search import web_search_tool
 from .tools.summarizer import summarize_tool
 
+sys.stderr.write("=== ALL IMPORTS SUCCESSFUL ===\n")
+sys.stderr.flush()
 
 class MCPServerAlpha:
     """Main MCP server class for Research Assistant."""
@@ -159,9 +162,24 @@ class MCPServerAlpha:
 
 def main() -> None:
     """Entry point for the MCP server."""
-    server = MCPServerAlpha()
-    asyncio.run(server.run())
+    sys.stderr.write("=== MAIN FUNCTION CALLED ===\n")
+    sys.stderr.flush()
+    
+    try:
+        server = MCPServerAlpha()
+        sys.stderr.write("=== SERVER INSTANCE CREATED ===\n")
+        sys.stderr.flush()
+        
+        asyncio.run(server.run())
+        sys.stderr.write("=== SERVER RUN COMPLETED ===\n")
+        sys.stderr.flush()
+    except Exception as e:
+        sys.stderr.write(f"=== ERROR IN MAIN: {e} ===\n")
+        sys.stderr.flush()
+        raise
 
 
 if __name__ == "__main__":
+    sys.stderr.write("=== __main__ BLOCK ENTERED ===\n")
+    sys.stderr.flush()
     main()
