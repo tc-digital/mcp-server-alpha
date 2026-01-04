@@ -4,6 +4,9 @@ from typing import Any
 
 import httpx
 
+# Constants
+_ZIPCODE_PATTERN = r"^\d{5}$"
+
 
 async def weather_forecast_tool(
     location: str, forecast_type: str = "forecast"
@@ -20,34 +23,12 @@ async def weather_forecast_tool(
     """
     try:
         # Parse location - check if it's a zip code or coordinates
-        if re.match(r"^\d{5}$", location.strip()):
+        if re.match(_ZIPCODE_PATTERN, location.strip()):
             # It's a zip code - convert to coordinates
             lat, lon = await _zipcode_to_coords(location.strip())
         elif "," in location:
-            # It's coordinates - validate format
-            parts = location.split(",")
-            if len(parts) != 2:
-                return {
-                    "error": "Coordinates must be in format 'latitude,longitude'",
-                    "success": False,
-                }
-            try:
-                lat = float(parts[0].strip())
-                lon = float(parts[1].strip())
-                # Validate coordinate ranges
-                if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
-                    return {
-                        "error": (
-                            "Invalid coordinates: latitude must be -90 to 90, "
-                            "longitude -180 to 180"
-                        ),
-                        "success": False,
-                    }
-            except ValueError:
-                return {
-                    "error": "Coordinates must be valid numbers",
-                    "success": False,
-                }
+            # It's coordinates - validate them
+            lat, lon = _parse_coordinates(location)
         else:
             return {
                 "error": "Location must be a 5-digit zip code or lat,lon coordinates",
@@ -166,7 +147,7 @@ async def _zipcode_to_coords(zipcode: str) -> tuple[float, float]:
         ValueError: If zip code cannot be geocoded or is invalid
     """
     # Validate zip code format (should be 5 digits)
-    if not re.match(r"^\d{5}$", zipcode):
+    if not re.match(_ZIPCODE_PATTERN, zipcode):
         raise ValueError(f"Invalid zip code format: {zipcode}")
 
     # Use zippopotam.us API for free zip code lookup (US only)
@@ -183,3 +164,35 @@ async def _zipcode_to_coords(zipcode: str) -> tuple[float, float]:
         lat = float(places[0]["latitude"])
         lon = float(places[0]["longitude"])
         return lat, lon
+
+
+def _parse_coordinates(location: str) -> tuple[float, float]:
+    """
+    Parse and validate coordinate string.
+
+    Args:
+        location: Coordinate string in format "latitude,longitude"
+
+    Returns:
+        Tuple of (latitude, longitude)
+
+    Raises:
+        ValueError: If coordinates are invalid or out of range
+    """
+    parts = location.split(",")
+    if len(parts) != 2:
+        raise ValueError("Coordinates must be in format 'latitude,longitude'")
+
+    try:
+        lat = float(parts[0].strip())
+        lon = float(parts[1].strip())
+    except ValueError as e:
+        raise ValueError("Coordinates must be valid numbers") from e
+
+    # Validate coordinate ranges
+    if not (-90 <= lat <= 90):
+        raise ValueError("Latitude must be between -90 and 90")
+    if not (-180 <= lon <= 180):
+        raise ValueError("Longitude must be between -180 and 180")
+
+    return lat, lon
