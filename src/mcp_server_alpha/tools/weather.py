@@ -6,6 +6,8 @@ import httpx
 
 # Constants
 _ZIPCODE_PATTERN = r"^\d{5}$"
+_USER_AGENT = "(mcp-server-alpha, github.com/tc-digital/mcp-server-alpha)"
+_MAX_FORECAST_PERIODS = 7
 
 
 async def weather_forecast_tool(
@@ -41,11 +43,7 @@ async def weather_forecast_tool(
             points_url = f"https://api.weather.gov/points/{lat},{lon}"
             points_response = await client.get(
                 points_url,
-                headers={
-                    "User-Agent": (
-                        "(mcp-server-alpha, github.com/tc-digital/mcp-server-alpha)"
-                    )
-                },
+                headers={"User-Agent": _USER_AGENT},
             )
             points_response.raise_for_status()
             points_data = points_response.json()
@@ -66,11 +64,7 @@ async def weather_forecast_tool(
             # Get the forecast
             forecast_response = await client.get(
                 forecast_url,
-                headers={
-                    "User-Agent": (
-                        "(mcp-server-alpha, github.com/tc-digital/mcp-server-alpha)"
-                    )
-                },
+                headers={"User-Agent": _USER_AGENT},
             )
             forecast_response.raise_for_status()
             forecast_data = forecast_response.json()
@@ -79,7 +73,7 @@ async def weather_forecast_tool(
             periods = forecast_data.get("properties", {}).get("periods", [])
             formatted_periods = []
 
-            for period in periods[:7]:  # Limit to first 7 periods
+            for period in periods[:_MAX_FORECAST_PERIODS]:
                 formatted_periods.append(
                     {
                         "name": period.get("name"),
