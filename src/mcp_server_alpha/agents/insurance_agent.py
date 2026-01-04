@@ -136,46 +136,60 @@ If the user doesn't provide this info, ask for it politely."""
         return END
 
     async def chat(
-        self, message: str, state: AgentState | None = None
+        self,
+        message: str,
+        state: AgentState | None = None,
     ) -> dict[str, Any]:
         """
         Process a user message and return agent response.
 
-        Args:
-            message: User's message
-            state: Optional previous state to maintain context
-
-        Returns:
-            Dict with response and updated state
+        This method is defensive against LangGraph returning raw dicts
+        instead of AgentState instances.
         """
-        # Initialize state if needed
+
+        # 1. Initialize state if needed
         if state is None:
             state = AgentState()
 
-        # Add user message
+        # 2. Append user message
         state.messages.append(HumanMessage(content=message))
 
-        # Run agent
-        result = await self.graph.ainvoke(state)
+        # 3. Invoke LangGraph
+        raw_result = await self.graph.ainvoke(state)
 
-        # Extract response
-        response_messages = result.messages
-        last_ai_message = None
-        for msg in reversed(response_messages):
-            if isinstance(msg, AIMessage) and not msg.tool_calls:
+        # 4. Rehydrate state defensively
+        if isinstance(raw_result, AgentState):
+            result_state = raw_result
+        elif isinstance(raw_result, dict):
+            result_state = AgentState(**raw_result)
+        else:
+            # Extremely defensive fallback (should never happen)
+            result_state = AgentState(messages=state.messages)
+
+        # 5. Extract the latest AI response that is NOT a tool call
+        last_ai_message: AIMessage | None = None
+
+        for msg in reversed(result_state.messages):
+            if isinstance(msg, AIMessage):
+                # Skip tool call messages
+                if getattr(msg, "tool_calls", None):
+                    continue
                 last_ai_message = msg
                 break
 
+        # 6. Final response text
         response_text = (
             last_ai_message.content
-            if last_ai_message and hasattr(last_ai_message, "content")
+            if last_ai_message and isinstance(last_ai_message.content, str)
             else "I'm here to help with insurance questions!"
         )
 
+        # 7. Return response + updated state
         return {
             "response": response_text,
-            "state": result,
+            "state": result_state,
         }
+
 
     def create_sample_consumer(
         self, age: int, state: str, zip_code: str, **kwargs: Any
