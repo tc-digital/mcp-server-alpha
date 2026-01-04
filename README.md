@@ -9,6 +9,7 @@ This research assistant can:
 - **🧮 Perform calculations** for mathematical and financial queries
 - **📊 Analyze data** to find patterns and insights
 - **📝 Summarize content** to extract key information
+- **🌤️ Get weather forecasts** for any US location by zip code or coordinates
 - **💭 Show its reasoning** with visible thought chains
 
 ## 🏗️ Architecture
@@ -16,7 +17,7 @@ This research assistant can:
 ```
 src/mcp_server_alpha/
 ├── models/          # Research models (Query, Result, ThoughtChain, etc.)
-├── tools/           # Research tools (search, calculator, analyzer, summarizer)
+├── tools/           # Research tools (search, calculator, analyzer, summarizer, weather)
 ├── agents/          # LangGraph agent with reasoning chains
 ├── orchestration/   # Workflow engine for complex tasks
 ├── adapters/        # Multi-channel adapters (chat, voice, API)
@@ -36,6 +37,7 @@ src/mcp_server_alpha/
 - **Calculator**: Perform mathematical calculations
 - **Data Analyzer**: Statistical analysis and pattern finding
 - **Summarizer**: Extract key information from text
+- **Weather Forecast**: Get real-time weather forecasts using weather.gov API
 
 #### 3. **Reasoning Chain** (`models/reasoning.py`)
 - Tracks agent's thought process
@@ -91,6 +93,10 @@ The assistant can handle various types of research:
 
 # Data analysis
 "Analyze this dataset: [10, 15, 20, 25, 30] and show statistics"
+
+# Weather forecasts
+"What's the weather forecast for zip code 10001?"
+"Get the hourly weather forecast for San Francisco (94102)"
 
 # Multi-step research
 "Research renewable energy trends and calculate the growth rate"
@@ -191,6 +197,39 @@ async def web_search_tool(query: str, max_results: int = 5):
     return response.json()["results"]
 ```
 
+**Weather Forecast**: Already integrated with real weather.gov API!
+
+```python
+# Query by zip code
+result = await weather_forecast_tool("10001", "forecast")
+
+# Query by coordinates  
+result = await weather_forecast_tool("39.7456,-97.0892", "hourly")
+
+# Returns structured forecast data
+{
+  "success": true,
+  "location": {
+    "latitude": 40.7484,
+    "longitude": -73.9967,
+    "city": "New York",
+    "state": "NY"
+  },
+  "forecast_type": "forecast",
+  "periods": [
+    {
+      "name": "Tonight",
+      "temperature": 45,
+      "temperatureUnit": "F",
+      "windSpeed": "5 mph",
+      "windDirection": "SW",
+      "shortForecast": "Partly Cloudy",
+      "detailedForecast": "Partly cloudy, with a low around 45..."
+    }
+  ]
+}
+```
+
 **Other integrations**:
 - Document analysis (PDF, Word, etc.)
 - Database queries
@@ -263,6 +302,7 @@ ResearchAgent(
 - ✅ Visible thought process
 - ✅ Extensible tool system
 - ✅ OpenAI integration
+- ✅ Real-time weather forecasts via weather.gov API
 
 ### Coming Soon
 - 🔄 Real web search integration (Google, Bing)

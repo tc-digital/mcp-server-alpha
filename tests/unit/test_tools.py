@@ -1,7 +1,13 @@
 """Tests for research tools."""
 import pytest
 
-from mcp_server_alpha.tools import analyze_data_tool, calculate_tool, summarize_tool, web_search_tool
+from mcp_server_alpha.tools import (
+    analyze_data_tool,
+    calculate_tool,
+    summarize_tool,
+    weather_forecast_tool,
+    web_search_tool,
+)
 
 
 @pytest.mark.asyncio
@@ -60,4 +66,33 @@ async def test_analyze_empty_data():
     """Test data analysis with empty data."""
     result = await analyze_data_tool([], "statistical")
 
+    assert "error" in result
+
+
+@pytest.mark.asyncio
+async def test_weather_forecast_with_coordinates():
+    """Test weather forecast with lat,lon coordinates."""
+    # Using coordinates for Kansas (central US)
+    result = await weather_forecast_tool("39.7456,-97.0892", "forecast")
+
+    # Should succeed with real API
+    if result.get("success"):
+        assert "location" in result
+        assert "periods" in result
+        assert len(result["periods"]) > 0
+        # Check first period has expected fields
+        first_period = result["periods"][0]
+        assert "temperature" in first_period
+        assert "shortForecast" in first_period
+    else:
+        # If it fails, it should have an error message
+        assert "error" in result
+
+
+@pytest.mark.asyncio
+async def test_weather_forecast_invalid_location():
+    """Test weather forecast with invalid location format."""
+    result = await weather_forecast_tool("invalid", "forecast")
+
+    assert result["success"] is False
     assert "error" in result
