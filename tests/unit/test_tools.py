@@ -96,3 +96,22 @@ async def test_weather_forecast_invalid_location():
 
     assert result["success"] is False
     assert "error" in result
+
+
+@pytest.mark.asyncio
+async def test_weather_forecast_invalid_coordinates():
+    """Test weather forecast with malformed coordinates."""
+    # Test with missing coordinate part
+    result = await weather_forecast_tool("39.7456", "forecast")
+    assert result["success"] is False
+    assert "error" in result
+
+    # Test with non-numeric coordinates
+    result = await weather_forecast_tool("abc,def", "forecast")
+    assert result["success"] is False
+    assert "error" in result
+
+    # Test with out of range coordinates
+    result = await weather_forecast_tool("999,-999", "forecast")
+    assert result["success"] is False
+    assert "error" in result

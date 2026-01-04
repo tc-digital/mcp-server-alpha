@@ -13,7 +13,7 @@ async def weather_forecast_tool(
 
     Args:
         location: Location as zip code (e.g., "10001") or lat,lon (e.g., "39.7456,-97.0892")
-        forecast_type: Type of forecast - "forecast" (12h periods), "hourly" or "current"
+        forecast_type: Type of forecast - "forecast" (12h periods) or "hourly"
 
     Returns:
         Dictionary with weather forecast data
@@ -24,10 +24,30 @@ async def weather_forecast_tool(
             # It's a zip code - convert to coordinates
             lat, lon = await _zipcode_to_coords(location.strip())
         elif "," in location:
-            # It's coordinates
+            # It's coordinates - validate format
             parts = location.split(",")
-            lat = float(parts[0].strip())
-            lon = float(parts[1].strip())
+            if len(parts) != 2:
+                return {
+                    "error": "Coordinates must be in format 'latitude,longitude'",
+                    "success": False,
+                }
+            try:
+                lat = float(parts[0].strip())
+                lon = float(parts[1].strip())
+                # Validate coordinate ranges
+                if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+                    return {
+                        "error": (
+                            "Invalid coordinates: latitude must be -90 to 90, "
+                            "longitude -180 to 180"
+                        ),
+                        "success": False,
+                    }
+            except ValueError:
+                return {
+                    "error": "Coordinates must be valid numbers",
+                    "success": False,
+                }
         else:
             return {
                 "error": "Location must be a 5-digit zip code or lat,lon coordinates",
@@ -143,8 +163,12 @@ async def _zipcode_to_coords(zipcode: str) -> tuple[float, float]:
         Tuple of (latitude, longitude)
 
     Raises:
-        ValueError: If zip code cannot be geocoded
+        ValueError: If zip code cannot be geocoded or is invalid
     """
+    # Validate zip code format (should be 5 digits)
+    if not re.match(r"^\d{5}$", zipcode):
+        raise ValueError(f"Invalid zip code format: {zipcode}")
+
     # Use zippopotam.us API for free zip code lookup (US only)
     async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.get(f"https://api.zippopotam.us/us/{zipcode}")
