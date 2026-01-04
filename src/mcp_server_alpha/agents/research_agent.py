@@ -1,25 +1,21 @@
 """LangGraph-based research assistant agent."""
 import os
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
+from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
-from pydantic import BaseModel, Field
+from typing_extensions import TypedDict
 
-from ..models import ThoughtChain
 from .tools import ResearchTools
 
 
-class AgentState(BaseModel):
+class AgentState(TypedDict):
     """State for the research agent."""
 
-    messages: list[BaseMessage] = Field(default_factory=list)
-    current_query: str | None = None
-    thought_chain: ThoughtChain | None = None
-    research_results: list[dict[str, Any]] = Field(default_factory=list)
-    last_action: str | None = None
+    messages: Annotated[list[BaseMessage], add_messages]
 
 
 class ResearchAgent:
@@ -94,9 +90,9 @@ class ResearchAgent:
 
     def _agent_node(self, state: AgentState) -> dict[str, Any]:
         """Agent reasoning node with visible thought process."""
-        messages = state.messages
+        messages = list(state["messages"])
 
-        # Add system message with research context
+        # Add system message with research context if not present
         if not any(isinstance(msg, SystemMessage) for msg in messages):
             system_msg = SystemMessage(
                 content="""You are an advanced research assistant with autonomous \
@@ -123,16 +119,17 @@ Always explain your thought process:
 
 Be curious, thorough, and show your reasoning chain!"""
             )
-            messages = [system_msg] + messages
+            messages.insert(0, system_msg)
 
         # Get LLM response
         response = self.llm.invoke(messages)
 
-        return {"messages": messages + [response]}
+        # Return only the new response - add_messages will handle appending
+        return {"messages": [response]}
 
     def _should_continue(self, state: AgentState) -> Literal["tools", "__end__"]:
         """Decide whether to continue to tools or end."""
-        messages = state.messages
+        messages = state["messages"]
         last_message = messages[-1]
 
         # If the last message has tool calls, continue to tools
@@ -157,19 +154,18 @@ Be curious, thorough, and show your reasoning chain!"""
         """
         # Initialize state if needed
         if state is None:
-            state = AgentState()
-            state.thought_chain = ThoughtChain(query=query)
-
-        state.current_query = query
+            state = {"messages": []}
 
         # Add user message
-        state.messages.append(HumanMessage(content=query))
+        user_message = HumanMessage(content=query)
 
-        # Run agent
-        result = await self.graph.ainvoke(state)
+        # Run agent with the user message
+        result = await self.graph.ainvoke(
+            {"messages": state["messages"] + [user_message]}
+        )
 
         # Extract response
-        response_messages = result.messages
+        response_messages = result["messages"]
         last_ai_message = None
         for msg in reversed(response_messages):
             if isinstance(msg, AIMessage) and not msg.tool_calls:
@@ -183,7 +179,7 @@ Be curious, thorough, and show your reasoning chain!"""
         )
 
         # Extract reasoning from messages
-        reasoning_steps = self._extract_reasoning(result.messages)
+        reasoning_steps = self._extract_reasoning(result["messages"])
 
         return {
             "response": response_text,

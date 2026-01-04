@@ -25,6 +25,8 @@ dependencies = [
     "langchain>=0.1.0",
     "langchain-core>=0.1.0",
     "langchain-openai>=0.0.2",
+    # Typing extensions for Python 3.10 compatibility
+    "typing-extensions>=4.5.0",
 ]
 
 [project.optional-dependencies]
