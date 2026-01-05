@@ -8,6 +8,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
+from .agents.reasoning_orchestrator import ReasoningOrchestrator
 from .tools.analyzer import analyze_data_tool
 from .tools.calculator import calculate_tool
 from .tools.search import web_search_tool
@@ -24,6 +25,10 @@ class MCPServerAlpha:
     def __init__(self):
         """Initialize the MCP server."""
         self.server = Server("mcp-server-alpha-research")
+
+        # Initialize reasoning orchestrator (lazy initialization to avoid
+        # API key requirements at startup)
+        self._orchestrator = None
 
         # Register MCP tools
         self._register_tools()
@@ -172,6 +177,39 @@ class MCPServerAlpha:
                         "required": ["to_email", "subject", "body"],
                     },
                 ),
+                Tool(
+                    name="reasoning_agent",
+                    description=(
+                        "Execute complex multi-step tasks using an autonomous reasoning agent "
+                        "powered by LangGraph. The agent analyzes your goal, plans a sequence "
+                        "of actions, orchestrates other MCP tools, and provides step-by-step "
+                        "progress updates with visible reasoning. Use this for tasks requiring "
+                        "multiple tools or complex decision-making. Requires OPENAI_API_KEY "
+                        "environment variable."
+                    ),
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "goal": {
+                                "type": "string",
+                                "description": (
+                                    "Natural language description of the goal to achieve. "
+                                    "Be specific about what you want the agent to do. "
+                                    "Example: 'Research renewable energy trends, analyze the data, "
+                                    "and calculate the growth rate over the last 5 years.'"
+                                ),
+                            },
+                            "context": {
+                                "type": "object",
+                                "description": (
+                                    "Optional context from previous agent executions to maintain "
+                                    "continuity across related tasks."
+                                ),
+                            },
+                        },
+                        "required": ["goal"],
+                    },
+                ),
             ]
 
         @self.server.call_tool()
@@ -232,6 +270,51 @@ class MCPServerAlpha:
                         body=arguments["body"],
                     )
                     return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+                elif name == "reasoning_agent":
+                    # Lazy initialization of orchestrator
+                    if self._orchestrator is None:
+                        try:
+                            self._orchestrator = ReasoningOrchestrator()
+                        except ValueError as e:
+                            return [
+                                TextContent(
+                                    type="text",
+                                    text=json.dumps(
+                                        {
+                                            "success": False,
+                                            "error": str(e),
+                                            "message": (
+                                                "Reasoning agent requires OPENAI_API_KEY "
+                                                "environment variable to be set."
+                                            ),
+                                        },
+                                        indent=2,
+                                    ),
+                                )
+                            ]
+
+                    # Execute the goal using reasoning orchestrator
+                    result = await self._orchestrator.execute(
+                        goal=arguments["goal"],
+                        context=arguments.get("context"),
+                    )
+
+                    # Format result for MCP response
+                    formatted_result = {
+                        "success": True,
+                        "result": result["result"],
+                        "execution_summary": {
+                            "total_steps": len(result["steps"]),
+                            "tools_used": [tc["tool"] for tc in result["tool_calls"]],
+                            "tool_count": len(result["tool_calls"]),
+                        },
+                        "steps": result["steps"],
+                        "tool_calls": result["tool_calls"],
+                        "reasoning_chain": result["reasoning"],
+                    }
+
+                    return [TextContent(type="text", text=json.dumps(formatted_result, indent=2))]
 
                 else:
                     return [TextContent(type="text", text=f"Unknown tool: {name}")]
