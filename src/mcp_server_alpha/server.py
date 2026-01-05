@@ -11,6 +11,7 @@ from mcp.types import TextContent, Tool
 from .tools.analyzer import analyze_data_tool
 from .tools.calculator import calculate_tool
 from .tools.search import web_search_tool
+from .tools.send_email import send_email_tool
 from .tools.summarizer import summarize_tool
 from .tools.weather import weather_forecast_tool
 
@@ -139,6 +140,38 @@ class MCPServerAlpha:
                         "required": ["location"],
                     },
                 ),
+                Tool(
+                    name="send_email",
+                    description=(
+                        "Send an email by triggering a Power Automate flow via HTTP POST webhook. "
+                        "Requires POWER_AUTOMATE_WEBHOOK_URL environment variable to be configured."
+                    ),
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "to_email": {
+                                "type": "string",
+                                "description": (
+                                    "Recipient's email address "
+                                    "(required, must be valid email format)"
+                                ),
+                            },
+                            "subject": {
+                                "type": "string",
+                                "description": (
+                                    "Email subject (required, max 500 characters)"
+                                ),
+                            },
+                            "body": {
+                                "type": "string",
+                                "description": (
+                                    "Email body content (required, max 50,000 characters)"
+                                ),
+                            },
+                        },
+                        "required": ["to_email", "subject", "body"],
+                    },
+                ),
             ]
 
         @self.server.call_tool()
@@ -189,6 +222,14 @@ class MCPServerAlpha:
                     result = await weather_forecast_tool(
                         location=arguments["location"],
                         forecast_type=arguments.get("forecast_type", "forecast"),
+                    )
+                    return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+                elif name == "send_email":
+                    result = await send_email_tool(
+                        to_email=arguments["to_email"],
+                        subject=arguments["subject"],
+                        body=arguments["body"],
                     )
                     return [TextContent(type="text", text=json.dumps(result, indent=2))]
 

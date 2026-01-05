@@ -10,6 +10,7 @@ This research assistant can:
 - **📊 Analyze data** to find patterns and insights
 - **📝 Summarize content** to extract key information
 - **🌤️ Get weather forecasts** for any US location by zip code or coordinates
+- **📧 Send emails** via Power Automate flow webhooks
 - **💭 Show its reasoning** with visible thought chains
 
 ## 🏗️ Architecture
@@ -17,7 +18,7 @@ This research assistant can:
 ```
 src/mcp_server_alpha/
 ├── models/          # Research models (Query, Result, ThoughtChain, etc.)
-├── tools/           # Research tools (search, calculator, analyzer, summarizer, weather)
+├── tools/           # Research tools (search, calculator, analyzer, summarizer, weather, send_email)
 ├── agents/          # LangGraph agent with reasoning chains
 ├── orchestration/   # Workflow engine for complex tasks
 ├── adapters/        # Multi-channel adapters (chat, voice, API)
@@ -38,6 +39,7 @@ src/mcp_server_alpha/
 - **Data Analyzer**: Statistical analysis and pattern finding
 - **Summarizer**: Extract key information from text
 - **Weather Forecast**: Get real-time weather forecasts using weather.gov API
+- **Send Email**: Trigger Power Automate flow to send emails via webhook
 
 #### 3. **Reasoning Chain** (`models/reasoning.py`)
 - Tracks agent's thought process
@@ -97,6 +99,9 @@ The assistant can handle various types of research:
 # Weather forecasts
 "What's the weather forecast for zip code 10001?"
 "Get the hourly weather forecast for San Francisco (94102)"
+
+# Send email via Power Automate
+"Send an email to john@example.com with subject 'Meeting Notes' and body 'Here are the notes from today's meeting...'"
 
 # Multi-step research
 "Research renewable energy trends and calculate the growth rate"
@@ -230,6 +235,37 @@ result = await weather_forecast_tool("39.7456,-97.0892", "hourly")
 }
 ```
 
+**Send Email via Power Automate**: Already integrated with configurable webhook!
+
+See the [Power Automate Integration Guide](POWER_AUTOMATE_INTEGRATION.md) for detailed setup instructions.
+
+```python
+# Configure in Claude Desktop config or as system environment variable
+# Claude Desktop: ~/Library/Application Support/Claude/claude_desktop_config.json
+# Add to "env" section: "POWER_AUTOMATE_WEBHOOK_URL": "https://..."
+
+# Send email via the tool
+result = await send_email_tool(
+    to_email="recipient@example.com",
+    subject="Meeting Summary",
+    body="Here is the summary of our meeting today..."
+)
+
+# Returns structured result
+{
+  "success": true,
+  "message": "Email sent successfully",
+  "to_email": "recipient@example.com",
+  "subject": "Meeting Summary"
+}
+```
+
+**Important**: After configuring Claude Desktop, completely quit and restart the application.
+
+**Troubleshooting**: If you get configuration errors, see [TROUBLESHOOTING_CLAUDE_DESKTOP.md](TROUBLESHOOTING_CLAUDE_DESKTOP.md).
+
+For complete setup instructions, troubleshooting, and advanced configuration, see [POWER_AUTOMATE_INTEGRATION.md](POWER_AUTOMATE_INTEGRATION.md).
+
 **Other integrations**:
 - Document analysis (PDF, Word, etc.)
 - Database queries
@@ -282,6 +318,7 @@ pytest tests/unit/test_agent.py
 ### Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
+- `POWER_AUTOMATE_WEBHOOK_URL`: Power Automate flow webhook URL for sending emails (optional, required for send_email tool)
 
 ### Agent Parameters
 
@@ -303,6 +340,7 @@ ResearchAgent(
 - ✅ Extensible tool system
 - ✅ OpenAI integration
 - ✅ Real-time weather forecasts via weather.gov API
+- ✅ Email sending via Power Automate flow webhooks
 
 ### Coming Soon
 - 🔄 Real web search integration (Google, Bing)
