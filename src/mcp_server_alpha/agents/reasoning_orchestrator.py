@@ -71,24 +71,22 @@ class ReasoningOrchestrator:
         self, goal: str, context: dict[str, Any] | None
     ) -> str:
         """Add orchestration context to the goal."""
-        enhanced = f"""As an autonomous reasoning agent, analyze this goal and determine the \
-best sequence of actions to achieve it:
-
-GOAL: {goal}
-
-Available tools:
-- web_search: Search for information online
-- calculate: Perform mathematical calculations
-- analyze_data: Analyze datasets and find patterns
-- summarize_text: Summarize long text content
-
-Think step-by-step:
-1. Break down the goal into actionable sub-tasks
-2. Identify which tools are needed for each sub-task
-3. Execute tools in logical order
-4. Synthesize results into a final answer
-
-Show your reasoning process clearly at each step."""
+        enhanced = (
+            "As an autonomous reasoning agent, analyze this goal and determine the "
+            "best sequence of actions to achieve it:\n\n"
+            f"GOAL: {goal}\n\n"
+            "Available tools:\n"
+            "- web_search: Search for information online\n"
+            "- calculate: Perform mathematical calculations\n"
+            "- analyze_data: Analyze datasets and find patterns\n"
+            "- summarize_text: Summarize long text content\n\n"
+            "Think step-by-step:\n"
+            "1. Break down the goal into actionable sub-tasks\n"
+            "2. Identify which tools are needed for each sub-task\n"
+            "3. Execute tools in logical order\n"
+            "4. Synthesize results into a final answer\n\n"
+            "Show your reasoning process clearly at each step."
+        )
 
         if context:
             enhanced += f"\n\nPrevious context:\n{json.dumps(context, indent=2)}"
@@ -126,14 +124,21 @@ Show your reasoning process clearly at each step."""
 
         for item in reasoning_chain:
             if "🔧 Using" in item and " tool:" in item:
-                # Parse tool call
+                # Parse tool call - Note: This relies on the agent formatting
+                # tool calls with specific emoji and text patterns.
+                # Future improvement: use structured JSON markers
                 parts = item.split(" tool:")
                 if len(parts) == 2:
                     tool_name = parts[0].replace("🔧 Using ", "").strip()
                     try:
                         args = json.loads(parts[1].strip()) if parts[1].strip() else {}
-                    except json.JSONDecodeError:
-                        args = {"raw": parts[1].strip()}
+                    except json.JSONDecodeError as e:
+                        # Log parsing issue and store raw text for debugging
+                        # In production, this should be logged to monitoring system
+                        args = {
+                            "raw": parts[1].strip(),
+                            "parse_error": str(e),
+                        }
 
                     tool_calls.append({
                         "tool": tool_name,

@@ -306,7 +306,10 @@ class MCPServerAlpha:
                         "result": result["result"],
                         "execution_summary": {
                             "total_steps": len(result["steps"]),
-                            "tools_used": [tc["tool"] for tc in result["tool_calls"]],
+                            "tools_used": [
+                                tc.get("tool", "unknown")
+                                for tc in result["tool_calls"]
+                            ],
                             "tool_count": len(result["tool_calls"]),
                         },
                         "steps": result["steps"],
