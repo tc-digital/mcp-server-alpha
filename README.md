@@ -11,7 +11,22 @@ This research assistant can:
 - **📝 Summarize content** to extract key information
 - **🌤️ Get weather forecasts** for any US location by zip code or coordinates
 - **📧 Send emails** via Power Automate flow webhooks
+- **🤖 Autonomous reasoning agent** for complex multi-step tasks (NEW!)
 - **💭 Show its reasoning** with visible thought chains
+
+## 🆕 Reasoning Agent Meta-Tool
+
+The **Reasoning Agent** is a meta-tool that orchestrates other MCP tools using LangGraph for autonomous planning and execution. Perfect for complex tasks requiring multiple steps and decision-making.
+
+**Example**: *"Research renewable energy trends, analyze the data, and calculate the growth rate"*
+
+The agent will:
+1. 🔍 Search for renewable energy information
+2. 📊 Analyze the data found
+3. 🧮 Calculate growth rates
+4. 💡 Synthesize results into a comprehensive answer
+
+**📖 [Full Reasoning Agent Documentation](REASONING_AGENT.md)**
 
 ## 🏗️ Architecture
 
@@ -19,7 +34,7 @@ This research assistant can:
 src/mcp_server_alpha/
 ├── models/          # Research models (Query, Result, ThoughtChain, etc.)
 ├── tools/           # Research tools (search, calculator, analyzer, summarizer, weather, send_email)
-├── agents/          # LangGraph agent with reasoning chains
+├── agents/          # LangGraph agent with reasoning chains + Reasoning Orchestrator (NEW)
 ├── orchestration/   # Workflow engine for complex tasks
 ├── adapters/        # Multi-channel adapters (chat, voice, API)
 └── server.py        # MCP server implementation
@@ -27,13 +42,19 @@ src/mcp_server_alpha/
 
 ### Key Components
 
-#### 1. **Research Agent** (`agents/research_agent.py`)
+#### 1. **Reasoning Agent Orchestrator** (`agents/reasoning_orchestrator.py`) - NEW!
+- Meta-tool that orchestrates other MCP tools using LangGraph
+- Autonomous goal decomposition and task planning
+- Multi-step execution with branching logic
+- Step-by-step progress tracking with visible reasoning
+
+#### 2. **Research Agent** (`agents/research_agent.py`)
 - LangGraph-based autonomous agent
 - Uses OpenAI (gpt-4o-mini by default) for reasoning
 - Visible thought process and reasoning chains
 - Tool orchestration based on research needs
 
-#### 2. **Research Tools** (`tools/`)
+#### 3. **Research Tools** (`tools/`)
 - **Web Search**: Find information on any topic (mock, ready for real API)
 - **Calculator**: Perform mathematical calculations
 - **Data Analyzer**: Statistical analysis and pattern finding
@@ -41,12 +62,12 @@ src/mcp_server_alpha/
 - **Weather Forecast**: Get real-time weather forecasts using weather.gov API
 - **Send Email**: Trigger Power Automate flow to send emails via webhook
 
-#### 3. **Reasoning Chain** (`models/reasoning.py`)
+#### 4. **Reasoning Chain** (`models/reasoning.py`)
 - Tracks agent's thought process
 - Shows observations, analysis, synthesis, and conclusions
 - Helps understand how the agent reaches answers
 
-#### 4. **Config-Driven System**
+#### 5. **Config-Driven System**
 - Easy to add new tools and integrations
 - No code changes needed for new capabilities
 - Pluggable architecture
@@ -334,9 +355,10 @@ ResearchAgent(
 
 ### Current
 - ✅ Autonomous research with reasoning chains
+- ✅ **Reasoning Agent meta-tool for complex multi-step task orchestration (NEW!)**
 - ✅ Multi-tool orchestration
 - ✅ Context-aware conversations
-- ✅ Visible thought process
+- ✅ Visible thought process and step-by-step execution tracking
 - ✅ Extensible tool system
 - ✅ OpenAI integration
 - ✅ Real-time weather forecasts via weather.gov API
@@ -347,6 +369,9 @@ ResearchAgent(
 - 📄 Document analysis (PDF, Word, markdown)
 - 💾 Memory/RAG for long-term knowledge
 - 🎨 Visualization generation
+- 🌊 Streaming progress updates for reasoning agent
+- ✅ User prompt/parameter collection for reasoning agent
+- 📊 Visual flowchart of reasoning agent execution
 - 🔗 More integrations (GitHub, databases, etc.)
 - 🌐 Web UI for interactive research
 
