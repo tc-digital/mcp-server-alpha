@@ -102,7 +102,13 @@ $env:POWER_AUTOMATE_WEBHOOK_URL="https://prod-..."
 
 ### Running the Server
 
-**MCP Server (for Claude Desktop):**
+**Using the startup script (Recommended for MCP clients like Claude Desktop):**
+```bash
+./start_mcp.sh
+```
+The script automatically activates the virtual environment and starts the server.
+
+**Direct Python command:**
 ```bash
 python -m mcp_server_alpha.server
 ```
@@ -476,6 +482,29 @@ docker run -e OPENAI_API_KEY='sk-...' -e POWER_AUTOMATE_WEBHOOK_URL='https://...
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
+**Option 1: Using the dynamic startup script (Recommended)**
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-alpha": {
+      "command": "/absolute/path/to/mcp-server-alpha/start_mcp.sh",
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "POWER_AUTOMATE_WEBHOOK_URL": "https://..."
+      }
+    }
+  }
+}
+```
+
+Replace `/absolute/path/to/mcp-server-alpha/` with the actual path where you cloned the repository. The `start_mcp.sh` script automatically:
+- Detects its location
+- Activates the virtual environment
+- Starts the MCP server
+
+**Option 2: Direct Python command**
+
 ```json
 {
   "mcpServers": {
@@ -490,6 +519,8 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   }
 }
 ```
+
+Note: This requires the virtual environment to be activated or dependencies installed globally.
 
 **Important**: After configuring Claude Desktop, completely quit and restart the application.
 
