@@ -24,7 +24,7 @@ _orchestrator: ReasoningOrchestrator | None = None
 
 
 @mcp.tool()
-async def web_search(query: str, max_results: int = 5) -> dict[str, Any]:
+async def web_search(query: str, max_results: int = 5) -> list[dict[str, Any]]:
     """Search the web for information on a given query.
 
     Args:
@@ -32,7 +32,7 @@ async def web_search(query: str, max_results: int = 5) -> dict[str, Any]:
         max_results: Maximum number of results to return (default: 5)
 
     Returns:
-        Dictionary containing search results
+        List of search results with title, url, and snippet
     """
     result = await web_search_tool(query=query, max_results=max_results)
     return result
