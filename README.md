@@ -2,6 +2,143 @@
 
 An intelligent, autonomous research assistant powered by LangGraph and OpenAI that demonstrates visible reasoning chains and multi-tool orchestration.
 
+## 🚀 Quick Start
+
+Get up and running in under 2 minutes!
+
+### Option 1: Automated Setup Script (Recommended)
+
+**Linux/macOS:**
+```bash
+git clone https://github.com/tc-digital/mcp-server-alpha.git
+cd mcp-server-alpha
+./setup.sh
+```
+
+**Windows:**
+```cmd
+git clone https://github.com/tc-digital/mcp-server-alpha.git
+cd mcp-server-alpha
+setup.bat
+```
+
+The scripts will:
+- ✅ Create and activate a virtual environment
+- ✅ Install all dependencies automatically
+- ✅ Check your environment configuration
+- ✅ Optionally start the MCP server
+
+### Option 2: Docker (Containerized Deployment)
+
+```bash
+# Build the Docker image
+docker build -t mcp-server-alpha .
+
+# Run with environment variables
+docker run -it --rm \
+  -e OPENAI_API_KEY='your-api-key-here' \
+  -e POWER_AUTOMATE_WEBHOOK_URL='your-webhook-url' \
+  mcp-server-alpha
+```
+
+For Docker Compose, create a `docker-compose.yml`:
+```yaml
+version: '3.8'
+services:
+  mcp-server:
+    build: .
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - POWER_AUTOMATE_WEBHOOK_URL=${POWER_AUTOMATE_WEBHOOK_URL}
+    # Uncomment if you add HTTP API endpoints:
+    # ports:
+    #   - "8000:8000"
+```
+
+Then run: `docker-compose up`
+
+### Option 3: Manual Installation
+
+**Prerequisites:**
+- Python 3.10 or higher
+- OpenAI API key
+
+```bash
+# Clone and navigate
+git clone https://github.com/tc-digital/mcp-server-alpha.git
+cd mcp-server-alpha
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -e ".[dev]"
+```
+
+### Environment Variables
+
+Set these environment variables before running:
+
+```bash
+# Required for OpenAI-powered research
+export OPENAI_API_KEY='sk-...'
+
+# Optional for send_email tool
+export POWER_AUTOMATE_WEBHOOK_URL='https://prod-...'
+```
+
+**Windows (cmd):**
+```cmd
+set OPENAI_API_KEY=sk-...
+set POWER_AUTOMATE_WEBHOOK_URL=https://prod-...
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY="sk-..."
+$env:POWER_AUTOMATE_WEBHOOK_URL="https://prod-..."
+```
+
+### Running the Server
+
+**Using the startup script (Recommended for MCP clients like Claude Desktop):**
+```bash
+./start_mcp.sh
+```
+The script automatically activates the virtual environment and starts the server.
+
+**Direct Python command:**
+```bash
+python -m mcp_server_alpha.server
+```
+
+**Research Example:**
+```bash
+python examples/research_example.py
+```
+
+### Troubleshooting
+
+**Issue: "OPENAI_API_KEY not set"**
+- Solution: Set the environment variable before running (see Environment Variables above)
+
+**Issue: "Python 3.10 or higher is required"**
+- Solution: Upgrade Python or use Docker
+
+**Issue: "Module not found" errors**
+- Solution: Ensure virtual environment is activated and dependencies are installed
+  ```bash
+  source venv/bin/activate  # or venv\Scripts\activate on Windows
+  pip install -e ".[dev]"
+  ```
+
+**Issue: Docker build fails**
+- Solution: Ensure Docker is installed and running, then try: `docker system prune` and rebuild
+
+**Claude Desktop Integration Issues:**
+- See [TROUBLESHOOTING_CLAUDE_DESKTOP.md](TROUBLESHOOTING_CLAUDE_DESKTOP.md)
+
 ## 🎯 What It Does
 
 This research assistant can:
@@ -72,37 +209,6 @@ src/mcp_server_alpha/
 - No code changes needed for new capabilities
 - Pluggable architecture
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.10+
-- OpenAI API key
-
-### Installation
-
-```bash
-# Clone and install
-git clone https://github.com/tc-digital/mcp-server-alpha.git
-cd mcp-server-alpha
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -e ".[dev]"
-```
-
-### Running the Research Assistant
-
-```bash
-# Set your OpenAI API key
-export OPENAI_API_KEY='sk-...'
-
-# Run the example
-python examples/research_example.py
-```
-
 ### Example Research Queries
 
 The assistant can handle various types of research:
@@ -124,9 +230,11 @@ The assistant can handle various types of research:
 # Send email via Power Automate
 "Send an email to john@example.com with subject 'Meeting Notes' and body 'Here are the notes from today's meeting...'"
 
-# Multi-step research
+# Multi-step research with reasoning agent
 "Research renewable energy trends and calculate the growth rate"
 ```
+
+For Claude Desktop users, see the [Quick Start](#-quick-start) section for setup instructions.
 
 ## 💡 Usage
 
@@ -338,8 +446,87 @@ pytest tests/unit/test_agent.py
 
 ### Environment Variables
 
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-- `POWER_AUTOMATE_WEBHOOK_URL`: Power Automate flow webhook URL for sending emails (optional, required for send_email tool)
+The following environment variables configure the server:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | ✅ Yes | Your OpenAI API key for GPT models |
+| `POWER_AUTOMATE_WEBHOOK_URL` | ⚠️ Optional | Power Automate webhook URL for send_email tool |
+
+**Setting Environment Variables:**
+
+**Linux/macOS (bash/zsh):**
+```bash
+export OPENAI_API_KEY='sk-...'
+export POWER_AUTOMATE_WEBHOOK_URL='https://prod-...'
+```
+
+**Windows (cmd):**
+```cmd
+set OPENAI_API_KEY=sk-...
+set POWER_AUTOMATE_WEBHOOK_URL=https://prod-...
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY="sk-..."
+$env:POWER_AUTOMATE_WEBHOOK_URL="https://prod-..."
+```
+
+**Docker:**
+```bash
+docker run -e OPENAI_API_KEY='sk-...' -e POWER_AUTOMATE_WEBHOOK_URL='https://...' mcp-server-alpha
+```
+
+**Claude Desktop Configuration:**
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+**Option 1: Using the dynamic startup script (Recommended)**
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-alpha": {
+      "command": "/absolute/path/to/mcp-server-alpha/start_mcp.sh",
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "POWER_AUTOMATE_WEBHOOK_URL": "https://..."
+      }
+    }
+  }
+}
+```
+
+Replace `/absolute/path/to/mcp-server-alpha/start_mcp.sh` with the actual path:
+- **Linux/macOS**: `/home/username/mcp-server-alpha/start_mcp.sh`
+- **Windows**: `C:/Users/username/mcp-server-alpha/start_mcp.sh` (use forward slashes)
+
+The `start_mcp.sh` script automatically:
+- Detects its location
+- Activates the virtual environment
+- Starts the MCP server
+
+**Option 2: Direct Python command**
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-alpha": {
+      "command": "python",
+      "args": ["-m", "mcp_server_alpha.server"],
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "POWER_AUTOMATE_WEBHOOK_URL": "https://..."
+      }
+    }
+  }
+}
+```
+
+Note: This requires the virtual environment to be activated or dependencies installed globally.
+
+**Important**: After configuring Claude Desktop, completely quit and restart the application.
 
 ### Agent Parameters
 

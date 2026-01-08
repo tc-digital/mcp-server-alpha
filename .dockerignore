@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (keep essential ones)
+# Uncomment if you don't want to include docs in image
+# *.md
+
+# CI/CD
+.github/
+
+# Scripts (not needed in container - container uses CMD directly)
+# These scripts are for local development setup only
+start_mcp.sh
+setup.sh
+setup.bat
+
+# Tests (optional - uncomment if you don't want tests in image)
+# tests/
+
+# Examples (optional - uncomment if you don't want examples in image)
+# examples/
