@@ -139,6 +139,33 @@ python examples/research_example.py
 **Claude Desktop Integration Issues:**
 - See [TROUBLESHOOTING_CLAUDE_DESKTOP.md](TROUBLESHOOTING_CLAUDE_DESKTOP.md)
 
+## 📢 Migration to FastMCP (v0.2.0)
+
+**Important Notice:** As of version 0.2.0, this project has been migrated from the legacy `mcp` package to **FastMCP**, the emerging standard for Python MCP applications. FastMCP is actively maintained and offers enhanced features and better integration with the Python MCP ecosystem.
+
+### What Changed:
+- **Dependency Update**: Replaced `mcp>=0.9.0` with `fastmcp<3` (pinned to avoid breaking changes in v3.0)
+- **Server Implementation**: Refactored to use FastMCP's decorator-based tool registration
+- **Simplified Architecture**: Tools are now registered with `@mcp.tool()` decorators instead of manual registration
+- **Better Type Safety**: Leverages FastMCP's built-in type handling and validation
+
+### Migration Impact:
+- ✅ **All existing functionality preserved** - No changes to tool behavior or API
+- ✅ **All tests passing** - Full backward compatibility maintained
+- ✅ **Same installation process** - No changes required to setup scripts
+- ✅ **Compatible with existing MCP clients** - Works with Claude Desktop and other MCP clients
+- 📚 **Updated codebase** - Cleaner, more maintainable code following modern patterns
+
+### For Developers:
+If you're maintaining a fork or have custom modifications:
+1. Update `pyproject.toml` to use `fastmcp<3` instead of `mcp>=0.9.0`
+2. Refactor tool registration to use `@mcp.tool()` decorators
+3. Replace `Server` with `FastMCP` instance
+4. Tools should return dictionaries/objects directly (no need for `TextContent` wrapping)
+5. Run tests to ensure compatibility: `pytest tests/`
+
+For more details, see [FastMCP Documentation](https://gofastmcp.com).
+
 ## 🎯 What It Does
 
 This research assistant can:
@@ -174,7 +201,7 @@ src/mcp_server_alpha/
 ├── agents/          # LangGraph agent with reasoning chains + Reasoning Orchestrator (NEW)
 ├── orchestration/   # Workflow engine for complex tasks
 ├── adapters/        # Multi-channel adapters (chat, voice, API)
-└── server.py        # MCP server implementation
+└── server.py        # FastMCP server implementation
 ```
 
 ### Key Components

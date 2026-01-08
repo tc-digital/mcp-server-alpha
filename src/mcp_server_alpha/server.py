@@ -1,7 +1,6 @@
 """Main MCP server implementation for Research Assistant."""
-import json
 import sys
-from typing import Any, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -21,7 +20,7 @@ mcp = FastMCP("mcp-server-alpha-research")
 
 # Initialize reasoning orchestrator (lazy initialization to avoid
 # API key requirements at startup)
-_orchestrator: Optional[ReasoningOrchestrator] = None
+_orchestrator: ReasoningOrchestrator | None = None
 
 
 @mcp.tool()
@@ -121,7 +120,7 @@ async def send_email(to_email: str, subject: str, body: str) -> dict[str, Any]:
 
 
 @mcp.tool()
-async def reasoning_agent(goal: str, context: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+async def reasoning_agent(goal: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
     """Execute complex multi-step tasks using an autonomous reasoning agent.
 
     Powered by LangGraph, the agent analyzes your goal, plans a sequence of actions,
@@ -140,7 +139,7 @@ async def reasoning_agent(goal: str, context: Optional[dict[str, Any]] = None) -
         Dictionary containing execution results, steps, and reasoning chain
     """
     global _orchestrator
-    
+
     # Lazy initialization of orchestrator
     if _orchestrator is None:
         try:
@@ -183,10 +182,10 @@ def main() -> None:
     try:
         sys.stderr.write("=== STARTING SERVER WITH FASTMCP ===\n")
         sys.stderr.flush()
-        
+
         # Run the FastMCP server using stdio transport
         mcp.run()
-        
+
         sys.stderr.write("=== SERVER RUN COMPLETED ===\n")
         sys.stderr.flush()
     except Exception as e:
