@@ -9,14 +9,14 @@
 #
 
 # Ensure script is executed, not sourced
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    # Get the directory where this script is located
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-else
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     echo "Error: This script must be executed, not sourced."
     echo "Usage: ./start_mcp.sh"
     return 1 2>/dev/null || exit 1
 fi
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Check for --no-venv flag
 NO_VENV=false
@@ -25,10 +25,10 @@ if [[ "$1" == "--no-venv" ]]; then
 fi
 
 # Check if virtual environment exists
-if [ -d "$SCRIPT_DIR/venv" ]; then
+if [[ -d "$SCRIPT_DIR/venv" ]]; then
     # Activate virtual environment if it exists
     source "$SCRIPT_DIR/venv/bin/activate"
-elif [ "$NO_VENV" = false ]; then
+elif [[ "$NO_VENV" == false ]]; then
     echo "Error: Virtual environment not found at $SCRIPT_DIR/venv"
     echo ""
     echo "The MCP server requires dependencies to be installed."
