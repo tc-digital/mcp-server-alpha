@@ -27,15 +27,13 @@ if errorlevel 1 (
     exit /b 1
 )
 
-for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
+REM Get version info directly from Python for reliability
+for /f "delims=" %%i in ('python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"') do set PYTHON_VERSION=%%i
+for /f "delims=" %%i in ('python -c "import sys; print(sys.version_info.major)"') do set PYTHON_MAJOR=%%i
+for /f "delims=" %%i in ('python -c "import sys; print(sys.version_info.minor)"') do set PYTHON_MINOR=%%i
+
 echo [OK] Python %PYTHON_VERSION% detected
 echo.
-
-REM Extract major and minor version
-for /f "tokens=1,2 delims=." %%a in ("%PYTHON_VERSION%") do (
-    set PYTHON_MAJOR=%%a
-    set PYTHON_MINOR=%%b
-)
 
 if %PYTHON_MAJOR% LSS 3 (
     echo ERROR: Python 3.10 or higher is required. Found: %PYTHON_VERSION%

@@ -67,7 +67,8 @@ Thumbs.db
 # CI/CD
 .github/
 
-# Scripts (not needed in container)
+# Scripts (not needed in container - container uses CMD directly)
+# These scripts are for local development setup only
 start_mcp.sh
 setup.sh
 setup.bat

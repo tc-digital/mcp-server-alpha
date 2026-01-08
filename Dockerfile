@@ -1,5 +1,5 @@
 # Multi-stage build for mcp-server-alpha
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Set working directory
 WORKDIR /app
@@ -13,10 +13,12 @@ RUN apt-get update && \
 
 # Copy only requirements files first for better caching
 COPY pyproject.toml ./
+COPY src ./src
+COPY README.md ./
 
-# Install dependencies
+# Install dependencies and the package
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -e ".[dev]"
+    pip install --no-cache-dir ".[dev]"
 
 # Final stage
 FROM python:3.11-slim
@@ -29,10 +31,8 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
-COPY . .
-
-# Install the application in editable mode
-RUN pip install --no-cache-dir -e .
+COPY src ./src
+COPY pyproject.toml README.md ./
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1

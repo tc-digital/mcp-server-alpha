@@ -29,9 +29,10 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
-PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d'.' -f1)
-PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
+# Get version info directly from Python for reliability
+PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')")
+PYTHON_MAJOR=$(python3 -c "import sys; print(sys.version_info.major)")
+PYTHON_MINOR=$(python3 -c "import sys; print(sys.version_info.minor)")
 
 if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 10 ]); then
     echo -e "${RED}❌ Python 3.10 or higher is required. Found: $PYTHON_VERSION${NC}"
@@ -59,8 +60,11 @@ echo ""
 
 # Upgrade pip
 echo "⬆️  Upgrading pip..."
-pip install --upgrade pip > /dev/null 2>&1
-echo -e "${GREEN}✓ pip upgraded${NC}"
+if pip install --upgrade pip --quiet 2>&1 | grep -q "ERROR"; then
+    echo -e "${YELLOW}⚠ Warning: pip upgrade had issues, but continuing...${NC}"
+else
+    echo -e "${GREEN}✓ pip upgraded${NC}"
+fi
 echo ""
 
 # Install dependencies
