@@ -60,10 +60,10 @@ echo ""
 
 # Upgrade pip
 echo "⬆️  Upgrading pip..."
-if pip install --upgrade pip --quiet 2>&1 | grep -q "ERROR"; then
-    echo -e "${YELLOW}⚠ Warning: pip upgrade had issues, but continuing...${NC}"
-else
+if pip install --upgrade pip --quiet; then
     echo -e "${GREEN}✓ pip upgraded${NC}"
+else
+    echo -e "${YELLOW}⚠ Warning: pip upgrade had issues, but continuing...${NC}"
 fi
 echo ""
 

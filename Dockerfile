@@ -11,12 +11,11 @@ RUN apt-get update && \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only requirements files first for better caching
-COPY pyproject.toml ./
+# Copy project files
+COPY pyproject.toml README.md ./
 COPY src ./src
-COPY README.md ./
 
-# Install dependencies and the package
+# Install dependencies (non-editable for production)
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir ".[dev]"
 
@@ -37,6 +36,7 @@ COPY pyproject.toml README.md ./
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app
 
 # Create a non-root user
 RUN useradd -m -u 1000 mcpuser && \
