@@ -60,7 +60,7 @@ echo ""
 
 # Upgrade pip
 echo "⬆️  Upgrading pip..."
-if pip install --upgrade pip --quiet; then
+if pip install --upgrade pip 2>/dev/null; then
     echo -e "${GREEN}✓ pip upgraded${NC}"
 else
     echo -e "${YELLOW}⚠ Warning: pip upgrade had issues, but continuing...${NC}"

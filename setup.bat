@@ -74,7 +74,7 @@ echo.
 
 REM Upgrade pip
 echo Upgrading pip...
-python -m pip install --upgrade pip >nul 2>&1
+python -m pip install --upgrade pip 2>nul
 if errorlevel 1 (
     echo [WARNING] Failed to upgrade pip, continuing anyway...
 ) else (
