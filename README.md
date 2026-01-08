@@ -498,7 +498,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 }
 ```
 
-Replace `/absolute/path/to/mcp-server-alpha/` with the actual path where you cloned the repository. The `start_mcp.sh` script automatically:
+Replace `/absolute/path/to/mcp-server-alpha/` with the actual path where you cloned the repository (e.g., `/home/username/projects/mcp-server-alpha/` on Linux/macOS or `C:/Users/username/mcp-server-alpha/` on Windows). The `start_mcp.sh` script automatically:
 - Detects its location
 - Activates the virtual environment
 - Starts the MCP server

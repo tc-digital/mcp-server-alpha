@@ -9,6 +9,7 @@
 #
 
 # Ensure script is executed, not sourced
+# Note: BASH_SOURCE[0] != $0 when sourced (they're equal when executed)
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     echo "Error: This script must be executed, not sourced."
     echo "Usage: ./start_mcp.sh"
@@ -28,7 +29,7 @@ fi
 if [[ -d "$SCRIPT_DIR/venv" ]]; then
     # Activate virtual environment if it exists
     source "$SCRIPT_DIR/venv/bin/activate"
-elif [[ "$NO_VENV" == false ]]; then
+elif [[ "$NO_VENV" != true ]]; then
     echo "Error: Virtual environment not found at $SCRIPT_DIR/venv"
     echo ""
     echo "The MCP server requires dependencies to be installed."
